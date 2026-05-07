@@ -12,8 +12,8 @@ ALPHA:
   Semantic similarity  (Jaccard acts)        1.0000  high  (>0.7)
   Structural similarity (avg metric)         0.4494  medium (0.4–0.7)
   Structural similarity (GED)                0.8552  high  (>0.7)
-  Structural similarity (Jaccard DFG)        0.0789  low  (<0.4)
-  Behaviour similarity (Trace Sampling)      0.0000  low  (<0.4)
+  Behavioral similarity (Jaccard DFG)        0.0789  low  (<0.4)
+  Behavioral similarity (Trace Sampling)      0.0000  low  (<0.4)
   Combined score                             0.5144  medium (0.4–0.7)
   
   Isolated nodes NONE
@@ -32,8 +32,8 @@ HEURISTIC:
   Semantic similarity  (Jaccard acts)        1.0000  high  (>0.7)
   Structural similarity (avg metric)         0.7342  high  (>0.7)
   Structural similarity (GED)                0.8863  high  (>0.7)
-  Structural similarity (Jaccard DFG)        0.1772  low  (<0.4)
-  Behaviour similarity (Trace Sampling)      0.0000  low  (<0.4)
+  Behavioral similarity (Jaccard DFG)        0.1772  low  (<0.4)
+  Behavioral similarity (Trace Sampling)      0.0000  low  (<0.4)
   Combined score                             0.6408  medium (0.4–0.7)
   
   Isolated nodes NONE
@@ -49,11 +49,11 @@ INDUCTIVE:
   Simplicity                           0.6500
 
   ### COMPARISON WITH LLM
-  Semantic similarity  (Jaccard acts)        0.8750  high  (>0.7)
+  Semantic similarity  (Jaccard acts)        1.0000  high  (>0.7)
   Structural similarity (avg metric)         0.9248  high  (>0.7)
   Structural similarity (GED)                0.8811  high  (>0.7)
-  Structural similarity (Jaccard DFG)        0.4651  medium (0.4–0.7)
-  Behaviour similarity (Trace Sampling)      0.0001  low  (<0.4)
+  Behavioral similarity (Jaccard DFG)        0.4651  medium (0.4–0.7)
+  Behavioral similarity (Trace Sampling)      0.0001  low  (<0.4)
   Combined score                             0.7562  high  (>0.7)
   
   Isolated nodes NONE
@@ -72,8 +72,8 @@ DOCTOR(GROUND):
   Semantic similarity  (Jaccard acts)        0.8750  high  (>0.7)
   Structural similarity (avg metric)         0.8726  high  (>0.7)
   Structural similarity (GED)                0.8791  high  (>0.7)
-  Structural similarity (Jaccard DFG)        0.4421  medium (0.4–0.7)
-  Behaviour similarity (Trace Sampling)      0.0004  low  (<0.4)
+  Behavioral similarity (Jaccard DFG)        0.4421  medium (0.4–0.7)
+  Behavioral similarity (Trace Sampling)      0.0004  low  (<0.4)
   Combined score                             0.7314  high  (>0.7)
   
   Isolated nodes NONE

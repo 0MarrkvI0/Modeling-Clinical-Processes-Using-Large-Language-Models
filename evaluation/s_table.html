@@ -1,0 +1,159 @@
+
+<style>
+h2.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap}
+.wrap{padding:1rem 0;overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:13px;table-layout:fixed}
+th,td{padding:9px 10px;border:0.5px solid var(--color-border-tertiary);text-align:center;vertical-align:middle;font-variant-numeric:tabular-nums}
+th{font-weight:500;font-size:12px;color:var(--color-text-secondary);background:var(--color-background-secondary)}
+th.row-hdr{text-align:left}
+td.metric-name{text-align:left;color:var(--color-text-secondary);font-size:12px;white-space:nowrap;background:var(--color-background-primary)}
+td.section-hdr{text-align:left;font-weight:500;font-size:12px;background:var(--color-background-secondary);color:var(--color-text-primary);border-top:0.5px solid var(--color-border-primary)}
+td.high{background:#1D9E75;color:#fff;font-weight:500}
+td.med{background:#E8A020;color:#fff;font-weight:500}
+td.low{background:#D85A30;color:#fff;font-weight:500}
+td.na{color:var(--color-text-tertiary);font-size:11px;background:var(--color-background-primary)}
+td.bool-true{background:#185FA5;color:#fff;font-weight:500}
+td.bool-false{background:#993556;color:#fff;font-weight:500}
+@media(prefers-color-scheme:dark){
+  td.high{background:#1D9E75}
+  td.med{background:#BA7517}
+  td.low{background:#993C1D}
+  td.bool-true{background:#185FA5}
+  td.bool-false{background:#72243E}
+}
+</style>
+
+<h2 class="sr-only">Comparison table of process model metrics across Alpha, Heuristic, Inductive, Doctor (Ground Truth), and LLM models</h2>
+<div class="wrap">
+<table>
+<colgroup>
+  <col style="width:250px">
+  <col><col><col><col><col>
+</colgroup>
+<thead>
+<tr>
+  <th class="row-hdr">Metric</th>
+  <th>Alpha</th>
+  <th>Heuristic</th>
+  <th>Inductive</th>
+  <th>Doctor (ground)</th>
+  <th>LLM</th>
+</tr>
+</thead>
+<tbody>
+
+<tr><td class="section-hdr" colspan="6">Model quality</td></tr>
+
+<tr>
+  <td class="metric-name">Soundness</td>
+  <td class="bool-false">False</td>
+  <td class="bool-false">False</td>
+  <td class="bool-true">True</td>
+  <td class="bool-true">True</td>
+  <td class="bool-true">True</td>
+</tr>
+<tr>
+  <td class="metric-name">Fitness (alignment, log)</td>
+  <td class="na">N/A</td>
+  <td class="na">N/A</td>
+  <td class="na">N/A</td>
+  <td class="high">0.9319</td>
+  <td class="high">0.9347</td>
+</tr>
+<tr>
+  <td class="metric-name">Precision (alignment / ETC)</td>
+  <td class="na">N/A</td>
+  <td class="na">N/A</td>
+  <td class="na">N/A</td>
+  <td class="med">0.5024</td>
+  <td class="low">0.3906</td>
+</tr>
+<tr>
+  <td class="metric-name">F1 Score</td>
+  <td class="na">N/A</td>
+  <td class="na">N/A</td>
+  <td class="na">N/A</td>
+  <td class="med">0.6528</td>
+  <td class="med">0.5509</td>
+</tr>
+<tr>
+  <td class="metric-name">Generalization</td>
+  <td class="med">0.4072</td>
+  <td class="high">0.7147</td>
+  <td class="high">0.8830</td>
+  <td class="high">0.9406</td>
+  <td class="high">0.9342</td>
+</tr>
+<tr>
+  <td class="metric-name">Simplicity</td>
+  <td class="med">0.5484</td>
+  <td class="med">0.6222</td>
+  <td class="med">0.6500</td>
+  <td class="med">0.6444</td>
+  <td class="med">0.6000</td>
+</tr>
+
+<tr><td class="section-hdr" colspan="6">Comparison with LLM</td></tr>
+
+<tr>
+  <td class="metric-name">Semantic similarity (Jaccard acts)</td>
+  <td class="high">1.0000</td>
+  <td class="high">1.0000</td>
+  <td class="high">0.8750</td>
+  <td class="high">0.8750</td>
+  <td class="na">—</td>
+</tr>
+<tr>
+  <td class="metric-name">Structural similarity (avg metric)</td>
+  <td class="med">0.4494</td>
+  <td class="high">0.7342</td>
+  <td class="high">0.9248</td>
+  <td class="high">0.8726</td>
+  <td class="na">—</td>
+</tr>
+<tr>
+  <td class="metric-name">Structural similarity (GED)</td>
+  <td class="high">0.8552</td>
+  <td class="high">0.8863</td>
+  <td class="high">0.8811</td>
+  <td class="high">0.8791</td>
+  <td class="na">—</td>
+</tr>
+<tr>
+  <td class="metric-name">Behavioral similarity (Jaccard DFG)</td>
+  <td class="low">0.0789</td>
+  <td class="low">0.1772</td>
+  <td class="med">0.4651</td>
+  <td class="med">0.4421</td>
+  <td class="na">—</td>
+</tr>
+<tr>
+  <td class="metric-name">Behavioral similarity (Trace Sampling)</td>
+  <td class="low">0.0000</td>
+  <td class="low">0.0000</td>
+  <td class="low">0.0001</td>
+  <td class="low">0.0004</td>
+  <td class="na">—</td>
+</tr>
+<tr>
+  <td class="metric-name">Combined score</td>
+  <td class="med">0.5144</td>
+  <td class="med">0.6408</td>
+  <td class="high">0.7562</td>
+  <td class="high">0.7314</td>
+  <td class="na">—</td>
+</tr>
+
+</tbody>
+</table>
+</div>
+
+<div style="display:flex;gap:16px;margin-top:14px;font-size:11px;flex-wrap:wrap;align-items:center">
+  <span style="color:var(--color-text-secondary);font-weight:500">Legend:</span>
+  <span style="display:flex;align-items:center;gap:5px"><span style="width:14px;height:14px;border-radius:3px;background:#1D9E75;display:inline-block"></span>high &gt; 0.7</span>
+  <span style="display:flex;align-items:center;gap:5px"><span style="width:14px;height:14px;border-radius:3px;background:#E8A020;display:inline-block"></span>medium 0.4–0.7</span>
+  <span style="display:flex;align-items:center;gap:5px"><span style="width:14px;height:14px;border-radius:3px;background:#D85A30;display:inline-block"></span>low &lt; 0.4</span>
+  <span style="display:flex;align-items:center;gap:5px"><span style="width:14px;height:14px;border-radius:3px;background:#185FA5;display:inline-block"></span>True</span>
+  <span style="display:flex;align-items:center;gap:5px"><span style="width:14px;height:14px;border-radius:3px;background:#993556;display:inline-block"></span>False</span>
+  <span style="color:var(--color-text-tertiary)">— = not applicable</span>
+</div>
