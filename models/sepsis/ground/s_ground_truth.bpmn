@@ -1,0 +1,646 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" id="Definitions_Sepsis_Image_Fixed" targetNamespace="http://example.com/sepsis" exporter="Camunda Modeler" exporterVersion="5.40.1">
+  <bpmn:process id="Process_Sepsis_Image_Fixed" name="Sepsis Image BPMN Fixed" isExecutable="true">
+    <bpmn:startEvent id="StartEvent_1" name="START EVENT">
+      <bpmn:outgoing>Flow_Start_To_EntrySplit</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:parallelGateway id="Gateway_EntrySplit">
+      <bpmn:incoming>Flow_Start_To_EntrySplit</bpmn:incoming>
+      <bpmn:outgoing>Flow_EntrySplit_ERRegistration</bpmn:outgoing>
+      <bpmn:outgoing>Flow_EntrySplit_ERTriage</bpmn:outgoing>
+      <bpmn:outgoing>Flow_EntrySplit_ERSepsisTriage</bpmn:outgoing>
+    </bpmn:parallelGateway>
+    <bpmn:task id="Activity_ERRegistration" name="ER Registration">
+      <bpmn:incoming>Flow_EntrySplit_ERRegistration</bpmn:incoming>
+      <bpmn:outgoing>Flow_ERRegistration_EntryJoin</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:task id="Activity_ERTriage" name="ER Triage">
+      <bpmn:incoming>Flow_EntrySplit_ERTriage</bpmn:incoming>
+      <bpmn:outgoing>Flow_ERTriage_EntryJoin</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:task id="Activity_ERSepsisTriage" name="ER Sepsis Triage">
+      <bpmn:incoming>Flow_EntrySplit_ERSepsisTriage</bpmn:incoming>
+      <bpmn:outgoing>Flow_ERSepsisTriage_EntryJoin</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:parallelGateway id="Gateway_EntryJoin">
+      <bpmn:incoming>Flow_ERRegistration_EntryJoin</bpmn:incoming>
+      <bpmn:incoming>Flow_ERTriage_EntryJoin</bpmn:incoming>
+      <bpmn:incoming>Flow_ERSepsisTriage_EntryJoin</bpmn:incoming>
+      <bpmn:outgoing>Flow_EntryJoin_CareSplit</bpmn:outgoing>
+    </bpmn:parallelGateway>
+    <bpmn:parallelGateway id="Gateway_CareSplit">
+      <bpmn:incoming>Flow_EntryJoin_CareSplit</bpmn:incoming>
+      <bpmn:outgoing>Flow_CareSplit_AdmissionOptSplit</bpmn:outgoing>
+      <bpmn:outgoing>Flow_CareSplit_TreatmentOptSplit</bpmn:outgoing>
+      <bpmn:outgoing>Flow_CareSplit_LacticSplit</bpmn:outgoing>
+      <bpmn:outgoing>Flow_CareSplit_CRPSplit</bpmn:outgoing>
+      <bpmn:outgoing>Flow_CareSplit_LeucocytesSplit</bpmn:outgoing>
+    </bpmn:parallelGateway>
+    <bpmn:exclusiveGateway id="Gateway_AdmissionOptSplit">
+      <bpmn:incoming>Flow_CareSplit_AdmissionOptSplit</bpmn:incoming>
+      <bpmn:outgoing>Flow_AdmissionOptSplit_AdmissionNC</bpmn:outgoing>
+      <bpmn:outgoing>Flow_AdmissionOptSplit_AdmissionOptJoin</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:task id="Activity_AdmissionNC" name="Admission NC">
+      <bpmn:incoming>Flow_AdmissionOptSplit_AdmissionNC</bpmn:incoming>
+      <bpmn:outgoing>Flow_AdmissionNC_AdmissionOptJoin</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:exclusiveGateway id="Gateway_AdmissionOptJoin">
+      <bpmn:incoming>Flow_AdmissionOptSplit_AdmissionOptJoin</bpmn:incoming>
+      <bpmn:incoming>Flow_AdmissionNC_AdmissionOptJoin</bpmn:incoming>
+      <bpmn:outgoing>Flow_AdmissionOptJoin_CareJoin</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:exclusiveGateway id="Gateway_TreatmentOptSplit">
+      <bpmn:incoming>Flow_CareSplit_TreatmentOptSplit</bpmn:incoming>
+      <bpmn:outgoing>Flow_TreatmentOptSplit_TreatmentParallelSplit</bpmn:outgoing>
+      <bpmn:outgoing>Flow_TreatmentOptSplit_TreatmentOptJoin</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:parallelGateway id="Gateway_TreatmentParallelSplit">
+      <bpmn:incoming>Flow_TreatmentOptSplit_TreatmentParallelSplit</bpmn:incoming>
+      <bpmn:outgoing>Flow_TreatmentParallelSplit_IVAntibiotics</bpmn:outgoing>
+      <bpmn:outgoing>Flow_TreatmentParallelSplit_IVLiquid</bpmn:outgoing>
+    </bpmn:parallelGateway>
+    <bpmn:task id="Activity_IVAntibiotics" name="IV Antibiotics">
+      <bpmn:incoming>Flow_TreatmentParallelSplit_IVAntibiotics</bpmn:incoming>
+      <bpmn:outgoing>Flow_IVAntibiotics_TreatmentParallelJoin</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:task id="Activity_IVLiquid" name="IV Liquid">
+      <bpmn:incoming>Flow_TreatmentParallelSplit_IVLiquid</bpmn:incoming>
+      <bpmn:outgoing>Flow_IVLiquid_TreatmentParallelJoin</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:parallelGateway id="Gateway_TreatmentParallelJoin">
+      <bpmn:incoming>Flow_IVAntibiotics_TreatmentParallelJoin</bpmn:incoming>
+      <bpmn:incoming>Flow_IVLiquid_TreatmentParallelJoin</bpmn:incoming>
+      <bpmn:outgoing>Flow_TreatmentParallelJoin_TreatmentOptJoin</bpmn:outgoing>
+    </bpmn:parallelGateway>
+    <bpmn:exclusiveGateway id="Gateway_TreatmentOptJoin">
+      <bpmn:incoming>Flow_TreatmentOptSplit_TreatmentOptJoin</bpmn:incoming>
+      <bpmn:incoming>Flow_TreatmentParallelJoin_TreatmentOptJoin</bpmn:incoming>
+      <bpmn:outgoing>Flow_TreatmentOptJoin_CareJoin</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:exclusiveGateway id="Gateway_LacticSplit">
+      <bpmn:incoming>Flow_CareSplit_LacticSplit</bpmn:incoming>
+      <bpmn:incoming>Flow_LacticJoin_LacticSplit</bpmn:incoming>
+      <bpmn:outgoing>Flow_LacticSplit_LacticAcid</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:task id="Activity_LacticAcid" name="LacticAcid">
+      <bpmn:incoming>Flow_LacticSplit_LacticAcid</bpmn:incoming>
+      <bpmn:outgoing>Flow_LacticAcid_LacticJoin</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:exclusiveGateway id="Gateway_LacticJoin">
+      <bpmn:incoming>Flow_LacticAcid_LacticJoin</bpmn:incoming>
+      <bpmn:outgoing>Flow_LacticJoin_LacticSplit</bpmn:outgoing>
+      <bpmn:outgoing>Flow_LacticJoin_CareJoin</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:exclusiveGateway id="Gateway_CRPSplit">
+      <bpmn:incoming>Flow_CareSplit_CRPSplit</bpmn:incoming>
+      <bpmn:incoming>Flow_CRPJoin_CRPSplit</bpmn:incoming>
+      <bpmn:outgoing>Flow_CRPSplit_CRP</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:task id="Activity_CRP" name="CRP">
+      <bpmn:incoming>Flow_CRPSplit_CRP</bpmn:incoming>
+      <bpmn:outgoing>Flow_CRP_CRPJoin</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:exclusiveGateway id="Gateway_CRPJoin">
+      <bpmn:incoming>Flow_CRP_CRPJoin</bpmn:incoming>
+      <bpmn:outgoing>Flow_CRPJoin_CRPSplit</bpmn:outgoing>
+      <bpmn:outgoing>Flow_CRPJoin_CareJoin</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:exclusiveGateway id="Gateway_LeucocytesSplit">
+      <bpmn:incoming>Flow_CareSplit_LeucocytesSplit</bpmn:incoming>
+      <bpmn:incoming>Flow_LeucocytesJoin_LeucocytesSplit</bpmn:incoming>
+      <bpmn:outgoing>Flow_LeucocytesSplit_Leucocytes</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:task id="Activity_Leucocytes" name="Leucocytes">
+      <bpmn:incoming>Flow_LeucocytesSplit_Leucocytes</bpmn:incoming>
+      <bpmn:outgoing>Flow_Leucocytes_LeucocytesJoin</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:exclusiveGateway id="Gateway_LeucocytesJoin">
+      <bpmn:incoming>Flow_Leucocytes_LeucocytesJoin</bpmn:incoming>
+      <bpmn:outgoing>Flow_LeucocytesJoin_LeucocytesSplit</bpmn:outgoing>
+      <bpmn:outgoing>Flow_LeucocytesJoin_CareJoin</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:parallelGateway id="Gateway_CareJoin">
+      <bpmn:incoming>Flow_AdmissionOptJoin_CareJoin</bpmn:incoming>
+      <bpmn:incoming>Flow_TreatmentOptJoin_CareJoin</bpmn:incoming>
+      <bpmn:incoming>Flow_LacticJoin_CareJoin</bpmn:incoming>
+      <bpmn:incoming>Flow_CRPJoin_CareJoin</bpmn:incoming>
+      <bpmn:incoming>Flow_LeucocytesJoin_CareJoin</bpmn:incoming>
+      <bpmn:outgoing>Flow_CareJoin_ReleaseASplit</bpmn:outgoing>
+    </bpmn:parallelGateway>
+    <bpmn:exclusiveGateway id="Gateway_ReleaseASplit">
+      <bpmn:incoming>Flow_CareJoin_ReleaseASplit</bpmn:incoming>
+      <bpmn:outgoing>Flow_ReleaseASplit_ReleaseA</bpmn:outgoing>
+      <bpmn:outgoing>Flow_ReleaseASplit_ReleaseAJoin</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:task id="Activity_ReleaseA" name="Release A">
+      <bpmn:incoming>Flow_ReleaseASplit_ReleaseA</bpmn:incoming>
+      <bpmn:outgoing>Flow_ReleaseA_ReleaseAJoin</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:exclusiveGateway id="Gateway_ReleaseAJoin">
+      <bpmn:incoming>Flow_ReleaseASplit_ReleaseAJoin</bpmn:incoming>
+      <bpmn:incoming>Flow_ReleaseA_ReleaseAJoin</bpmn:incoming>
+      <bpmn:outgoing>Flow_ReleaseAJoin_ReleaseChoiceSplit</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:exclusiveGateway id="Gateway_ReleaseChoiceSplit">
+      <bpmn:incoming>Flow_ReleaseAJoin_ReleaseChoiceSplit</bpmn:incoming>
+      <bpmn:outgoing>Flow_ReleaseChoiceSplit_ReleaseC</bpmn:outgoing>
+      <bpmn:outgoing>Flow_ReleaseChoiceSplit_ReleaseD</bpmn:outgoing>
+      <bpmn:outgoing>Flow_ReleaseChoiceSplit_ReleaseE</bpmn:outgoing>
+      <bpmn:outgoing>Flow_0q8au46</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:task id="Activity_ReleaseC" name="Release C">
+      <bpmn:incoming>Flow_ReleaseChoiceSplit_ReleaseC</bpmn:incoming>
+      <bpmn:outgoing>Flow_ReleaseC_ReleaseChoiceJoin</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:task id="Activity_ReleaseD" name="Release D">
+      <bpmn:incoming>Flow_ReleaseChoiceSplit_ReleaseD</bpmn:incoming>
+      <bpmn:outgoing>Flow_ReleaseD_ReleaseChoiceJoin</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:task id="Activity_ReleaseE" name="Release E">
+      <bpmn:incoming>Flow_ReleaseChoiceSplit_ReleaseE</bpmn:incoming>
+      <bpmn:outgoing>Flow_ReleaseE_ReleaseChoiceJoin</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:exclusiveGateway id="Gateway_ReleaseChoiceJoin">
+      <bpmn:incoming>Flow_ReleaseC_ReleaseChoiceJoin</bpmn:incoming>
+      <bpmn:incoming>Flow_ReleaseD_ReleaseChoiceJoin</bpmn:incoming>
+      <bpmn:incoming>Flow_ReleaseE_ReleaseChoiceJoin</bpmn:incoming>
+      <bpmn:incoming>Flow_0q8au46</bpmn:incoming>
+      <bpmn:outgoing>Flow_ReleaseChoiceJoin_ReturnSplit</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:exclusiveGateway id="Gateway_ReturnSplit">
+      <bpmn:incoming>Flow_ReleaseChoiceJoin_ReturnSplit</bpmn:incoming>
+      <bpmn:outgoing>Flow_ReturnSplit_ReturnER</bpmn:outgoing>
+      <bpmn:outgoing>Flow_ReturnSplit_ReturnJoin</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:task id="Activity_ReturnER" name="Return ER">
+      <bpmn:incoming>Flow_ReturnSplit_ReturnER</bpmn:incoming>
+      <bpmn:outgoing>Flow_ReturnER_ReturnJoin</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:exclusiveGateway id="Gateway_ReturnJoin">
+      <bpmn:incoming>Flow_ReturnSplit_ReturnJoin</bpmn:incoming>
+      <bpmn:incoming>Flow_ReturnER_ReturnJoin</bpmn:incoming>
+      <bpmn:outgoing>Flow_ReturnJoin_End</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:endEvent id="EndEvent_1" name="END EVENT">
+      <bpmn:incoming>Flow_ReturnJoin_End</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="Flow_Start_To_EntrySplit" sourceRef="StartEvent_1" targetRef="Gateway_EntrySplit" />
+    <bpmn:sequenceFlow id="Flow_EntrySplit_ERRegistration" sourceRef="Gateway_EntrySplit" targetRef="Activity_ERRegistration" />
+    <bpmn:sequenceFlow id="Flow_EntrySplit_ERTriage" sourceRef="Gateway_EntrySplit" targetRef="Activity_ERTriage" />
+    <bpmn:sequenceFlow id="Flow_EntrySplit_ERSepsisTriage" sourceRef="Gateway_EntrySplit" targetRef="Activity_ERSepsisTriage" />
+    <bpmn:sequenceFlow id="Flow_ERRegistration_EntryJoin" sourceRef="Activity_ERRegistration" targetRef="Gateway_EntryJoin" />
+    <bpmn:sequenceFlow id="Flow_ERTriage_EntryJoin" sourceRef="Activity_ERTriage" targetRef="Gateway_EntryJoin" />
+    <bpmn:sequenceFlow id="Flow_ERSepsisTriage_EntryJoin" sourceRef="Activity_ERSepsisTriage" targetRef="Gateway_EntryJoin" />
+    <bpmn:sequenceFlow id="Flow_EntryJoin_CareSplit" sourceRef="Gateway_EntryJoin" targetRef="Gateway_CareSplit" />
+    <bpmn:sequenceFlow id="Flow_CareSplit_AdmissionOptSplit" sourceRef="Gateway_CareSplit" targetRef="Gateway_AdmissionOptSplit" />
+    <bpmn:sequenceFlow id="Flow_AdmissionOptSplit_AdmissionNC" sourceRef="Gateway_AdmissionOptSplit" targetRef="Activity_AdmissionNC" />
+    <bpmn:sequenceFlow id="Flow_AdmissionOptSplit_AdmissionOptJoin" sourceRef="Gateway_AdmissionOptSplit" targetRef="Gateway_AdmissionOptJoin" />
+    <bpmn:sequenceFlow id="Flow_AdmissionNC_AdmissionOptJoin" sourceRef="Activity_AdmissionNC" targetRef="Gateway_AdmissionOptJoin" />
+    <bpmn:sequenceFlow id="Flow_AdmissionOptJoin_CareJoin" sourceRef="Gateway_AdmissionOptJoin" targetRef="Gateway_CareJoin" />
+    <bpmn:sequenceFlow id="Flow_CareSplit_TreatmentOptSplit" sourceRef="Gateway_CareSplit" targetRef="Gateway_TreatmentOptSplit" />
+    <bpmn:sequenceFlow id="Flow_TreatmentOptSplit_TreatmentParallelSplit" sourceRef="Gateway_TreatmentOptSplit" targetRef="Gateway_TreatmentParallelSplit" />
+    <bpmn:sequenceFlow id="Flow_TreatmentOptSplit_TreatmentOptJoin" sourceRef="Gateway_TreatmentOptSplit" targetRef="Gateway_TreatmentOptJoin" />
+    <bpmn:sequenceFlow id="Flow_TreatmentParallelSplit_IVAntibiotics" sourceRef="Gateway_TreatmentParallelSplit" targetRef="Activity_IVAntibiotics" />
+    <bpmn:sequenceFlow id="Flow_TreatmentParallelSplit_IVLiquid" sourceRef="Gateway_TreatmentParallelSplit" targetRef="Activity_IVLiquid" />
+    <bpmn:sequenceFlow id="Flow_IVAntibiotics_TreatmentParallelJoin" sourceRef="Activity_IVAntibiotics" targetRef="Gateway_TreatmentParallelJoin" />
+    <bpmn:sequenceFlow id="Flow_IVLiquid_TreatmentParallelJoin" sourceRef="Activity_IVLiquid" targetRef="Gateway_TreatmentParallelJoin" />
+    <bpmn:sequenceFlow id="Flow_TreatmentParallelJoin_TreatmentOptJoin" sourceRef="Gateway_TreatmentParallelJoin" targetRef="Gateway_TreatmentOptJoin" />
+    <bpmn:sequenceFlow id="Flow_TreatmentOptJoin_CareJoin" sourceRef="Gateway_TreatmentOptJoin" targetRef="Gateway_CareJoin" />
+    <bpmn:sequenceFlow id="Flow_CareSplit_LacticSplit" sourceRef="Gateway_CareSplit" targetRef="Gateway_LacticSplit" />
+    <bpmn:sequenceFlow id="Flow_LacticSplit_LacticAcid" sourceRef="Gateway_LacticSplit" targetRef="Activity_LacticAcid" />
+    <bpmn:sequenceFlow id="Flow_LacticAcid_LacticJoin" sourceRef="Activity_LacticAcid" targetRef="Gateway_LacticJoin" />
+    <bpmn:sequenceFlow id="Flow_LacticJoin_LacticSplit" sourceRef="Gateway_LacticJoin" targetRef="Gateway_LacticSplit" />
+    <bpmn:sequenceFlow id="Flow_LacticJoin_CareJoin" sourceRef="Gateway_LacticJoin" targetRef="Gateway_CareJoin" />
+    <bpmn:sequenceFlow id="Flow_CareSplit_CRPSplit" sourceRef="Gateway_CareSplit" targetRef="Gateway_CRPSplit" />
+    <bpmn:sequenceFlow id="Flow_CRPSplit_CRP" sourceRef="Gateway_CRPSplit" targetRef="Activity_CRP" />
+    <bpmn:sequenceFlow id="Flow_CRP_CRPJoin" sourceRef="Activity_CRP" targetRef="Gateway_CRPJoin" />
+    <bpmn:sequenceFlow id="Flow_CRPJoin_CRPSplit" sourceRef="Gateway_CRPJoin" targetRef="Gateway_CRPSplit" />
+    <bpmn:sequenceFlow id="Flow_CRPJoin_CareJoin" sourceRef="Gateway_CRPJoin" targetRef="Gateway_CareJoin" />
+    <bpmn:sequenceFlow id="Flow_CareSplit_LeucocytesSplit" sourceRef="Gateway_CareSplit" targetRef="Gateway_LeucocytesSplit" />
+    <bpmn:sequenceFlow id="Flow_LeucocytesSplit_Leucocytes" sourceRef="Gateway_LeucocytesSplit" targetRef="Activity_Leucocytes" />
+    <bpmn:sequenceFlow id="Flow_Leucocytes_LeucocytesJoin" sourceRef="Activity_Leucocytes" targetRef="Gateway_LeucocytesJoin" />
+    <bpmn:sequenceFlow id="Flow_LeucocytesJoin_LeucocytesSplit" sourceRef="Gateway_LeucocytesJoin" targetRef="Gateway_LeucocytesSplit" />
+    <bpmn:sequenceFlow id="Flow_LeucocytesJoin_CareJoin" sourceRef="Gateway_LeucocytesJoin" targetRef="Gateway_CareJoin" />
+    <bpmn:sequenceFlow id="Flow_CareJoin_ReleaseASplit" sourceRef="Gateway_CareJoin" targetRef="Gateway_ReleaseASplit" />
+    <bpmn:sequenceFlow id="Flow_ReleaseASplit_ReleaseA" sourceRef="Gateway_ReleaseASplit" targetRef="Activity_ReleaseA" />
+    <bpmn:sequenceFlow id="Flow_ReleaseASplit_ReleaseAJoin" sourceRef="Gateway_ReleaseASplit" targetRef="Gateway_ReleaseAJoin" />
+    <bpmn:sequenceFlow id="Flow_ReleaseA_ReleaseAJoin" sourceRef="Activity_ReleaseA" targetRef="Gateway_ReleaseAJoin" />
+    <bpmn:sequenceFlow id="Flow_ReleaseAJoin_ReleaseChoiceSplit" sourceRef="Gateway_ReleaseAJoin" targetRef="Gateway_ReleaseChoiceSplit" />
+    <bpmn:sequenceFlow id="Flow_ReleaseChoiceSplit_ReleaseC" sourceRef="Gateway_ReleaseChoiceSplit" targetRef="Activity_ReleaseC" />
+    <bpmn:sequenceFlow id="Flow_ReleaseChoiceSplit_ReleaseD" sourceRef="Gateway_ReleaseChoiceSplit" targetRef="Activity_ReleaseD" />
+    <bpmn:sequenceFlow id="Flow_ReleaseChoiceSplit_ReleaseE" sourceRef="Gateway_ReleaseChoiceSplit" targetRef="Activity_ReleaseE" />
+    <bpmn:sequenceFlow id="Flow_ReleaseC_ReleaseChoiceJoin" sourceRef="Activity_ReleaseC" targetRef="Gateway_ReleaseChoiceJoin" />
+    <bpmn:sequenceFlow id="Flow_ReleaseD_ReleaseChoiceJoin" sourceRef="Activity_ReleaseD" targetRef="Gateway_ReleaseChoiceJoin" />
+    <bpmn:sequenceFlow id="Flow_ReleaseE_ReleaseChoiceJoin" sourceRef="Activity_ReleaseE" targetRef="Gateway_ReleaseChoiceJoin" />
+    <bpmn:sequenceFlow id="Flow_ReleaseChoiceJoin_ReturnSplit" sourceRef="Gateway_ReleaseChoiceJoin" targetRef="Gateway_ReturnSplit" />
+    <bpmn:sequenceFlow id="Flow_ReturnSplit_ReturnER" sourceRef="Gateway_ReturnSplit" targetRef="Activity_ReturnER" />
+    <bpmn:sequenceFlow id="Flow_ReturnSplit_ReturnJoin" sourceRef="Gateway_ReturnSplit" targetRef="Gateway_ReturnJoin" />
+    <bpmn:sequenceFlow id="Flow_ReturnER_ReturnJoin" sourceRef="Activity_ReturnER" targetRef="Gateway_ReturnJoin" />
+    <bpmn:sequenceFlow id="Flow_ReturnJoin_End" sourceRef="Gateway_ReturnJoin" targetRef="EndEvent_1" />
+    <bpmn:sequenceFlow id="Flow_0q8au46" sourceRef="Gateway_ReleaseChoiceSplit" targetRef="Gateway_ReleaseChoiceJoin" />
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="Process_Sepsis_Image_Fixed">
+      <bpmndi:BPMNShape id="StartEvent_1_di" bpmnElement="StartEvent_1">
+        <dc:Bounds x="170" y="250" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="151" y="286" width="75" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_EntrySplit_di" bpmnElement="Gateway_EntrySplit">
+        <dc:Bounds x="240" y="243" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_ERRegistration_di" bpmnElement="Activity_ERRegistration">
+        <dc:Bounds x="330" y="160" width="100" height="60" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_ERTriage_di" bpmnElement="Activity_ERTriage">
+        <dc:Bounds x="330" y="245" width="100" height="60" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_ERSepsisTriage_di" bpmnElement="Activity_ERSepsisTriage">
+        <dc:Bounds x="330" y="330" width="100" height="60" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_EntryJoin_di" bpmnElement="Gateway_EntryJoin">
+        <dc:Bounds x="470" y="243" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_CareSplit_di" bpmnElement="Gateway_CareSplit">
+        <dc:Bounds x="560" y="243" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_AdmissionOptSplit_di" bpmnElement="Gateway_AdmissionOptSplit" isMarkerVisible="true">
+        <dc:Bounds x="650" y="110" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_AdmissionNC_di" bpmnElement="Activity_AdmissionNC">
+        <dc:Bounds x="750" y="105" width="100" height="60" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_AdmissionOptJoin_di" bpmnElement="Gateway_AdmissionOptJoin" isMarkerVisible="true">
+        <dc:Bounds x="890" y="110" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_TreatmentOptSplit_di" bpmnElement="Gateway_TreatmentOptSplit" isMarkerVisible="true">
+        <dc:Bounds x="650" y="215" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_TreatmentParallelSplit_di" bpmnElement="Gateway_TreatmentParallelSplit">
+        <dc:Bounds x="730" y="215" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_IVAntibiotics_di" bpmnElement="Activity_IVAntibiotics">
+        <dc:Bounds x="820" y="185" width="110" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_IVLiquid_di" bpmnElement="Activity_IVLiquid">
+        <dc:Bounds x="820" y="255" width="110" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_TreatmentParallelJoin_di" bpmnElement="Gateway_TreatmentParallelJoin">
+        <dc:Bounds x="965" y="215" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_TreatmentOptJoin_di" bpmnElement="Gateway_TreatmentOptJoin" isMarkerVisible="true">
+        <dc:Bounds x="1045" y="215" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_LacticSplit_di" bpmnElement="Gateway_LacticSplit" isMarkerVisible="true">
+        <dc:Bounds x="650" y="345" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_LacticAcid_di" bpmnElement="Activity_LacticAcid">
+        <dc:Bounds x="750" y="345" width="100" height="55" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_LacticJoin_di" bpmnElement="Gateway_LacticJoin" isMarkerVisible="true">
+        <dc:Bounds x="890" y="345" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_CRPSplit_di" bpmnElement="Gateway_CRPSplit" isMarkerVisible="true">
+        <dc:Bounds x="650" y="455" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_CRP_di" bpmnElement="Activity_CRP">
+        <dc:Bounds x="750" y="455" width="100" height="55" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_CRPJoin_di" bpmnElement="Gateway_CRPJoin" isMarkerVisible="true">
+        <dc:Bounds x="890" y="455" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_LeucocytesSplit_di" bpmnElement="Gateway_LeucocytesSplit" isMarkerVisible="true">
+        <dc:Bounds x="650" y="565" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_Leucocytes_di" bpmnElement="Activity_Leucocytes">
+        <dc:Bounds x="750" y="565" width="100" height="55" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_LeucocytesJoin_di" bpmnElement="Gateway_LeucocytesJoin" isMarkerVisible="true">
+        <dc:Bounds x="890" y="565" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_CareJoin_di" bpmnElement="Gateway_CareJoin">
+        <dc:Bounds x="1130" y="295" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_ReleaseASplit_di" bpmnElement="Gateway_ReleaseASplit" isMarkerVisible="true">
+        <dc:Bounds x="1250" y="295" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_ReleaseA_di" bpmnElement="Activity_ReleaseA">
+        <dc:Bounds x="1350" y="330" width="100" height="55" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_ReleaseAJoin_di" bpmnElement="Gateway_ReleaseAJoin" isMarkerVisible="true">
+        <dc:Bounds x="1500" y="295" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_ReleaseChoiceSplit_di" bpmnElement="Gateway_ReleaseChoiceSplit" isMarkerVisible="true">
+        <dc:Bounds x="1610" y="295" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_ReleaseC_di" bpmnElement="Activity_ReleaseC">
+        <dc:Bounds x="1730" y="220" width="100" height="55" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_ReleaseD_di" bpmnElement="Activity_ReleaseD">
+        <dc:Bounds x="1730" y="315" width="100" height="55" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_ReleaseE_di" bpmnElement="Activity_ReleaseE">
+        <dc:Bounds x="1730" y="410" width="100" height="55" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_ReleaseChoiceJoin_di" bpmnElement="Gateway_ReleaseChoiceJoin" isMarkerVisible="true">
+        <dc:Bounds x="1900" y="295" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_ReturnSplit_di" bpmnElement="Gateway_ReturnSplit" isMarkerVisible="true">
+        <dc:Bounds x="2020" y="295" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_ReturnER_di" bpmnElement="Activity_ReturnER">
+        <dc:Bounds x="2140" y="220" width="100" height="55" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_ReturnJoin_di" bpmnElement="Gateway_ReturnJoin" isMarkerVisible="true">
+        <dc:Bounds x="2300" y="295" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="EndEvent_1_di" bpmnElement="EndEvent_1">
+        <dc:Bounds x="2410" y="302" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="2396" y="338" width="64" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Flow_Start_To_EntrySplit_di" bpmnElement="Flow_Start_To_EntrySplit">
+        <di:waypoint x="206" y="268" />
+        <di:waypoint x="240" y="268" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_EntrySplit_ERRegistration_di" bpmnElement="Flow_EntrySplit_ERRegistration">
+        <di:waypoint x="290" y="268" />
+        <di:waypoint x="310" y="268" />
+        <di:waypoint x="310" y="190" />
+        <di:waypoint x="330" y="190" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_EntrySplit_ERTriage_di" bpmnElement="Flow_EntrySplit_ERTriage">
+        <di:waypoint x="290" y="268" />
+        <di:waypoint x="310" y="268" />
+        <di:waypoint x="310" y="275" />
+        <di:waypoint x="330" y="275" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_EntrySplit_ERSepsisTriage_di" bpmnElement="Flow_EntrySplit_ERSepsisTriage">
+        <di:waypoint x="290" y="268" />
+        <di:waypoint x="310" y="268" />
+        <di:waypoint x="310" y="360" />
+        <di:waypoint x="330" y="360" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_ERRegistration_EntryJoin_di" bpmnElement="Flow_ERRegistration_EntryJoin">
+        <di:waypoint x="430" y="190" />
+        <di:waypoint x="450" y="190" />
+        <di:waypoint x="450" y="268" />
+        <di:waypoint x="470" y="268" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_ERTriage_EntryJoin_di" bpmnElement="Flow_ERTriage_EntryJoin">
+        <di:waypoint x="430" y="275" />
+        <di:waypoint x="450" y="275" />
+        <di:waypoint x="450" y="268" />
+        <di:waypoint x="470" y="268" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_ERSepsisTriage_EntryJoin_di" bpmnElement="Flow_ERSepsisTriage_EntryJoin">
+        <di:waypoint x="430" y="360" />
+        <di:waypoint x="450" y="360" />
+        <di:waypoint x="450" y="268" />
+        <di:waypoint x="470" y="268" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_EntryJoin_CareSplit_di" bpmnElement="Flow_EntryJoin_CareSplit">
+        <di:waypoint x="520" y="268" />
+        <di:waypoint x="560" y="268" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_CareSplit_AdmissionOptSplit_di" bpmnElement="Flow_CareSplit_AdmissionOptSplit">
+        <di:waypoint x="610" y="268" />
+        <di:waypoint x="630" y="268" />
+        <di:waypoint x="630" y="135" />
+        <di:waypoint x="650" y="135" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_CareSplit_TreatmentOptSplit_di" bpmnElement="Flow_CareSplit_TreatmentOptSplit">
+        <di:waypoint x="610" y="268" />
+        <di:waypoint x="630" y="268" />
+        <di:waypoint x="630" y="240" />
+        <di:waypoint x="650" y="240" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_CareSplit_LacticSplit_di" bpmnElement="Flow_CareSplit_LacticSplit">
+        <di:waypoint x="610" y="268" />
+        <di:waypoint x="630" y="268" />
+        <di:waypoint x="630" y="370" />
+        <di:waypoint x="650" y="370" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_CareSplit_CRPSplit_di" bpmnElement="Flow_CareSplit_CRPSplit">
+        <di:waypoint x="610" y="268" />
+        <di:waypoint x="630" y="268" />
+        <di:waypoint x="630" y="480" />
+        <di:waypoint x="650" y="480" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_CareSplit_LeucocytesSplit_di" bpmnElement="Flow_CareSplit_LeucocytesSplit">
+        <di:waypoint x="610" y="268" />
+        <di:waypoint x="630" y="268" />
+        <di:waypoint x="630" y="590" />
+        <di:waypoint x="650" y="590" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_AdmissionOptSplit_AdmissionNC_di" bpmnElement="Flow_AdmissionOptSplit_AdmissionNC">
+        <di:waypoint x="700" y="135" />
+        <di:waypoint x="750" y="135" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_AdmissionOptSplit_AdmissionOptJoin_di" bpmnElement="Flow_AdmissionOptSplit_AdmissionOptJoin">
+        <di:waypoint x="675" y="110" />
+        <di:waypoint x="675" y="90" />
+        <di:waypoint x="915" y="90" />
+        <di:waypoint x="915" y="110" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_AdmissionNC_AdmissionOptJoin_di" bpmnElement="Flow_AdmissionNC_AdmissionOptJoin">
+        <di:waypoint x="850" y="135" />
+        <di:waypoint x="890" y="135" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_AdmissionOptJoin_CareJoin_di" bpmnElement="Flow_AdmissionOptJoin_CareJoin">
+        <di:waypoint x="940" y="135" />
+        <di:waypoint x="1155" y="135" />
+        <di:waypoint x="1155" y="295" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_TreatmentOptSplit_TreatmentParallelSplit_di" bpmnElement="Flow_TreatmentOptSplit_TreatmentParallelSplit">
+        <di:waypoint x="700" y="240" />
+        <di:waypoint x="730" y="240" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_TreatmentOptSplit_TreatmentOptJoin_di" bpmnElement="Flow_TreatmentOptSplit_TreatmentOptJoin">
+        <di:waypoint x="675" y="215" />
+        <di:waypoint x="675" y="180" />
+        <di:waypoint x="1070" y="180" />
+        <di:waypoint x="1070" y="215" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_TreatmentParallelSplit_IVAntibiotics_di" bpmnElement="Flow_TreatmentParallelSplit_IVAntibiotics">
+        <di:waypoint x="780" y="240" />
+        <di:waypoint x="800" y="240" />
+        <di:waypoint x="800" y="210" />
+        <di:waypoint x="820" y="210" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_TreatmentParallelSplit_IVLiquid_di" bpmnElement="Flow_TreatmentParallelSplit_IVLiquid">
+        <di:waypoint x="780" y="240" />
+        <di:waypoint x="800" y="240" />
+        <di:waypoint x="800" y="280" />
+        <di:waypoint x="820" y="280" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_IVAntibiotics_TreatmentParallelJoin_di" bpmnElement="Flow_IVAntibiotics_TreatmentParallelJoin">
+        <di:waypoint x="930" y="210" />
+        <di:waypoint x="947.5" y="210" />
+        <di:waypoint x="947.5" y="240" />
+        <di:waypoint x="965" y="240" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_IVLiquid_TreatmentParallelJoin_di" bpmnElement="Flow_IVLiquid_TreatmentParallelJoin">
+        <di:waypoint x="930" y="280" />
+        <di:waypoint x="947.5" y="280" />
+        <di:waypoint x="947.5" y="240" />
+        <di:waypoint x="965" y="240" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_TreatmentParallelJoin_TreatmentOptJoin_di" bpmnElement="Flow_TreatmentParallelJoin_TreatmentOptJoin">
+        <di:waypoint x="1015" y="240" />
+        <di:waypoint x="1045" y="240" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_TreatmentOptJoin_CareJoin_di" bpmnElement="Flow_TreatmentOptJoin_CareJoin">
+        <di:waypoint x="1095" y="240" />
+        <di:waypoint x="1155" y="240" />
+        <di:waypoint x="1155" y="295" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_LacticJoin_LacticSplit_di" bpmnElement="Flow_LacticJoin_LacticSplit">
+        <di:waypoint x="915" y="345" />
+        <di:waypoint x="915" y="320" />
+        <di:waypoint x="675" y="320" />
+        <di:waypoint x="675" y="345" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_LacticSplit_LacticAcid_di" bpmnElement="Flow_LacticSplit_LacticAcid">
+        <di:waypoint x="700" y="370" />
+        <di:waypoint x="750" y="372.5" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_LacticAcid_LacticJoin_di" bpmnElement="Flow_LacticAcid_LacticJoin">
+        <di:waypoint x="850" y="372.5" />
+        <di:waypoint x="890" y="370" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_LacticJoin_CareJoin_di" bpmnElement="Flow_LacticJoin_CareJoin">
+        <di:waypoint x="940" y="370" />
+        <di:waypoint x="1155" y="370" />
+        <di:waypoint x="1155" y="345" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_CRPJoin_CRPSplit_di" bpmnElement="Flow_CRPJoin_CRPSplit">
+        <di:waypoint x="915" y="455" />
+        <di:waypoint x="915" y="440" />
+        <di:waypoint x="675" y="440" />
+        <di:waypoint x="675" y="455" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_CRPSplit_CRP_di" bpmnElement="Flow_CRPSplit_CRP">
+        <di:waypoint x="700" y="480" />
+        <di:waypoint x="750" y="482.5" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_CRP_CRPJoin_di" bpmnElement="Flow_CRP_CRPJoin">
+        <di:waypoint x="850" y="482.5" />
+        <di:waypoint x="890" y="480" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_CRPJoin_CareJoin_di" bpmnElement="Flow_CRPJoin_CareJoin">
+        <di:waypoint x="940" y="480" />
+        <di:waypoint x="1155" y="480" />
+        <di:waypoint x="1155" y="345" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_LeucocytesJoin_LeucocytesSplit_di" bpmnElement="Flow_LeucocytesJoin_LeucocytesSplit">
+        <di:waypoint x="915" y="565" />
+        <di:waypoint x="915" y="550" />
+        <di:waypoint x="675" y="550" />
+        <di:waypoint x="675" y="565" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_LeucocytesSplit_Leucocytes_di" bpmnElement="Flow_LeucocytesSplit_Leucocytes">
+        <di:waypoint x="700" y="590" />
+        <di:waypoint x="750" y="592.5" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_Leucocytes_LeucocytesJoin_di" bpmnElement="Flow_Leucocytes_LeucocytesJoin">
+        <di:waypoint x="850" y="592.5" />
+        <di:waypoint x="890" y="590" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_LeucocytesJoin_CareJoin_di" bpmnElement="Flow_LeucocytesJoin_CareJoin">
+        <di:waypoint x="940" y="590" />
+        <di:waypoint x="1155" y="590" />
+        <di:waypoint x="1155" y="345" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_CareJoin_ReleaseASplit_di" bpmnElement="Flow_CareJoin_ReleaseASplit">
+        <di:waypoint x="1180" y="320" />
+        <di:waypoint x="1250" y="320" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_ReleaseASplit_ReleaseA_di" bpmnElement="Flow_ReleaseASplit_ReleaseA">
+        <di:waypoint x="1300" y="320" />
+        <di:waypoint x="1325" y="320" />
+        <di:waypoint x="1325" y="357.5" />
+        <di:waypoint x="1350" y="357.5" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_ReleaseASplit_ReleaseAJoin_di" bpmnElement="Flow_ReleaseASplit_ReleaseAJoin">
+        <di:waypoint x="1300" y="320" />
+        <di:waypoint x="1500" y="320" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_ReleaseA_ReleaseAJoin_di" bpmnElement="Flow_ReleaseA_ReleaseAJoin">
+        <di:waypoint x="1450" y="357.5" />
+        <di:waypoint x="1475" y="357.5" />
+        <di:waypoint x="1475" y="320" />
+        <di:waypoint x="1500" y="320" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_ReleaseAJoin_ReleaseChoiceSplit_di" bpmnElement="Flow_ReleaseAJoin_ReleaseChoiceSplit">
+        <di:waypoint x="1550" y="320" />
+        <di:waypoint x="1610" y="320" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_ReleaseChoiceSplit_ReleaseC_di" bpmnElement="Flow_ReleaseChoiceSplit_ReleaseC">
+        <di:waypoint x="1635" y="295" />
+        <di:waypoint x="1635" y="248" />
+        <di:waypoint x="1730" y="248" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_ReleaseChoiceSplit_ReleaseD_di" bpmnElement="Flow_ReleaseChoiceSplit_ReleaseD">
+        <di:waypoint x="1660" y="320" />
+        <di:waypoint x="1695" y="320" />
+        <di:waypoint x="1695" y="342.5" />
+        <di:waypoint x="1730" y="342.5" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_ReleaseChoiceSplit_ReleaseE_di" bpmnElement="Flow_ReleaseChoiceSplit_ReleaseE">
+        <di:waypoint x="1660" y="320" />
+        <di:waypoint x="1695" y="320" />
+        <di:waypoint x="1695" y="437.5" />
+        <di:waypoint x="1730" y="437.5" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_ReleaseC_ReleaseChoiceJoin_di" bpmnElement="Flow_ReleaseC_ReleaseChoiceJoin">
+        <di:waypoint x="1830" y="248" />
+        <di:waypoint x="1925" y="248" />
+        <di:waypoint x="1925" y="295" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_ReleaseD_ReleaseChoiceJoin_di" bpmnElement="Flow_ReleaseD_ReleaseChoiceJoin">
+        <di:waypoint x="1830" y="342.5" />
+        <di:waypoint x="1865" y="342.5" />
+        <di:waypoint x="1865" y="320" />
+        <di:waypoint x="1900" y="320" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_ReleaseE_ReleaseChoiceJoin_di" bpmnElement="Flow_ReleaseE_ReleaseChoiceJoin">
+        <di:waypoint x="1830" y="437.5" />
+        <di:waypoint x="1865" y="437.5" />
+        <di:waypoint x="1865" y="320" />
+        <di:waypoint x="1900" y="320" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_ReleaseChoiceJoin_ReturnSplit_di" bpmnElement="Flow_ReleaseChoiceJoin_ReturnSplit">
+        <di:waypoint x="1950" y="320" />
+        <di:waypoint x="2020" y="320" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_ReturnSplit_ReturnER_di" bpmnElement="Flow_ReturnSplit_ReturnER">
+        <di:waypoint x="2070" y="320" />
+        <di:waypoint x="2105" y="320" />
+        <di:waypoint x="2105" y="247.5" />
+        <di:waypoint x="2140" y="247.5" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_ReturnSplit_ReturnJoin_di" bpmnElement="Flow_ReturnSplit_ReturnJoin">
+        <di:waypoint x="2070" y="320" />
+        <di:waypoint x="2300" y="320" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_ReturnER_ReturnJoin_di" bpmnElement="Flow_ReturnER_ReturnJoin">
+        <di:waypoint x="2240" y="247.5" />
+        <di:waypoint x="2270" y="247.5" />
+        <di:waypoint x="2270" y="320" />
+        <di:waypoint x="2300" y="320" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_ReturnJoin_End_di" bpmnElement="Flow_ReturnJoin_End">
+        <di:waypoint x="2350" y="320" />
+        <di:waypoint x="2410" y="320" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0q8au46_di" bpmnElement="Flow_0q8au46">
+        <di:waypoint x="1640" y="300" />
+        <di:waypoint x="1920" y="300" />
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>

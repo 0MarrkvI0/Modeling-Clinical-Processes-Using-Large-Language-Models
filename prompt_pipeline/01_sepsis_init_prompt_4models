@@ -1,0 +1,143 @@
+You are an expert in business process modeling, POWL, and process mining, helping people understand complex flows. Your task is to create complete and easily readable process models using provided event logs from hospitals, which are accurate and clean.
+
+The objective is to produce the simplest universal process model that explains the dominant behavior of the log, not to perfectly replay every rare or noisy trace.
+
+You are given the following knowledge about the POWL modeling language:
+- A POWL model is hierarchical and recursively defined.
+- There are three model types:
+  1) Base case: activity(label)
+  2) Operator model: xor(*args) with n>=2 submodels OR loop(do, redo) with exactly 2 submodels
+  3) Partial order model: partial_order(submodels, dependencies) over n>=2 submodels, where dependencies is a list of tuples (i, j) meaning submodel i must precede submodel j. The dependency graph must be a DAG (acyclic).
+
+Assume the class ModelGenerator is correctly implemented and can be imported. It provides:
+- activity(label: str) -> POWL
+- skip() -> POWL
+- xor(*args: POWL) -> POWL
+- loop(do: POWL, redo: POWL) -> POWL
+- partial_order(submodels: list[POWL], dependencies: list[tuple[int,int]]) - dependencies must reference indices of the submodels list.
+
+Common patterns:
+- Activities that must all execute but in any order -> parallel(A, B, C) = partial_order([A, B, C], [])
+- Submodel that may or may not execute -> optional(X) = xor(X, skip())
+- Optional parallel block -> optional_parallel(A, B) = xor(partial_order([A, B], []), skip())
+- For any POWL model, powl.copy() returns a deep copy.
+
+Apply the following rules inspired by the 7 Guidelines for Process Modeling (7PMG):
+
+GENERAL MODELING PRINCIPLES
+- Prefer the simplest sound model that explains the dominant behavior of the event log.
+- Ensure the process has a single clear entry and a single clear exit.
+- Prefer block-structured constructs.
+- Do not simulate OR-splits or OR-joins.
+- Avoid unnecessary operators, gateways, branching, and duplicated structures.
+- Do not duplicate activities or sequences; use loops instead.
+- Do not repeat the same activity in alternative branches just to model combinations. Prefer using a single, more general block without duplication (duplication is only allowed within loops).
+- Never duplicate the same activity to model different combinations of surrounding behavior (e.g., avoid branches like: A, B, parallel(A,B)). Instead, represent all combinations using a single generalized structure.
+- Never repeat entire blocks to model recurring behavior. Instead, isolate the repeating activity and prefer minimal, single-activity loops. Choose loops based on better fitness and precision.
+- Before adding a new branch, gateway, or parallel block, first check whether the same dominant behavior can be captured by simplifying the existing structure.
+
+SPECIFIC MODELING RULES
+
+1) Sequential relation
+Model A → B only if A precedes B consistently in the dominant behavior.
+- Do not infer sequence from only one frequent trace.
+- If the reverse order B → A also appears repeatedly in non-negligible behavior, do not force a strict sequence.
+- Rare deviations or noisy traces should not overturn an otherwise stable sequential relation.
+
+2) Parallel / unordered relation
+Model A || B only if both A-before-B and B-before-A occur repeatedly as meaningful behavior.
+- Prefer the largest logically valid partial_order block that captures unordered regions without violating true dependency constraints.
+- If both orders are substantial, place A and B in the same maximal partial_order block.
+- Do not build small partial_order fragments if one bigger partial_order block can represent the same unordered region.
+- If activities have the same predecessors and the same successors, merge them into one maximal partial_order block.
+
+3) Exclusive choice / optionality
+If one activity or block appears in some cases but is absent in others, consider modeling it as xor(..., skip()) or as part of an exclusive choice.
+- Prefer optional structures over duplicating paths.
+- Use xor only when alternatives are genuinely different branches, not when behavior is simply unordered.
+- Do not
+
+4) Loop relation
+Model a loop only if an activity or block repeats within the same case.
+- A loop must represent recurring behavior, not noise or accidental label repetition.
+- The redo part must represent what can happen again.
+- Every loop must allow eventual termination.
+- Every loop must include at least one mandatory activity per iteration (no empty iterations).
+- When modeling a loop where the same activity repeats, create the activity object once and pass the same reference to both do and redo
+- Avoid multiple independent optional loops inside one large partial_order block, because they create state-space explosion.
+
+ALLOWED ACTIVITIES
+Strictly use activity names from this list only. Do not create your own activity names:
+["Admission IC", "Admission NC", "CRP", "ER Registration", "ER Sepsis Triage", "ER Triage", "IV Antibiotics", "IV Liquid", "LacticAcid", "Leucocytes", "Release A", "Release B", "Release C", "Release D", "Release E", "Return ER"]
+
+EXAMPLE (for inspiration only, no connection with provided log):
+
+```python
+"""
+Process description for example:
+A small company manufactures customized bicycles. Whenever the sales department
+receives an order, the order is either rejected or accepted. If the order is
+accepted, the storehouse and engineering department are informed. The required
+parts are checked and either reserved or back-ordered. Bicycle assembly is
+prepared, the bicycle is assembled, shipped, and the process finishes.
+
+Process model for example:
+"""
+from utils.model_generation import ModelGenerator
+
+gen = ModelGenerator()
+
+# Atomic activities
+create_process = gen.activity("Create process instance")
+reject_order = gen.activity("Reject order")
+accept_order = gen.activity("Accept order")
+inform = gen.activity("Inform storehouse and engineering department")
+process_part_list = gen.activity("Process part list")
+check_part = gen.activity("Check required quantity of the part")
+reserve = gen.activity("Reserve part")
+back_order = gen.activity("Back-order part")
+prepare_assembly = gen.activity("Prepare bicycle assembly")
+assemble_bicycle = gen.activity("Assemble bicycle")
+ship_bicycle = gen.activity("Ship bicycle")
+finish_process = gen.activity("Finish process instance")
+
+# Local choice for part handling
+check_reserve = gen.xor(reserve, back_order)
+
+# Partial order for handling a single part
+single_part = gen.partial_order(
+    submodels=[check_part, check_reserve],
+    dependencies=[(0, 1)]
+)
+
+# Loop for processing multiple parts
+part_loop = gen.loop(do=single_part, redo=single_part.copy())
+
+# Acceptance branch as a complete sub-process
+accept_poset = gen.partial_order(
+    submodels=[accept_order, inform, process_part_list, prepare_assembly, part_loop, assemble_bicycle, ship_bicycle],
+    dependencies=[
+        (0, 1),  # accept_order -> inform
+        (1, 2),  # inform -> process_part_list
+        (1, 3),  # inform -> prepare_assembly
+        (2, 4),  # process_part_list -> part_loop
+        (4, 5),  # part_loop -> assemble_bicycle
+        (3, 5),  # prepare_assembly -> assemble_bicycle
+        (5, 6),  # assemble_bicycle -> ship_bicycle
+    ]
+)
+
+# Global choice between accepting and rejecting the order
+choice_accept_reject = gen.xor(accept_poset, reject_order)
+
+# Top-level process with single start and end
+final_model = gen.partial_order(
+    submodels=[create_process, choice_accept_reject, finish_process],
+    dependencies=[
+        (0, 1),  # create_process -> choice_accept_reject
+        (1, 2),  # choice_accept_reject -> finish_process
+    ]
+)
+```
+
+Generate exactly 4 separate POWL models in Python representing a valid interpretation of the event log according to the stated preferences.

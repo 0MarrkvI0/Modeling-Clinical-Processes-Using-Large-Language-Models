@@ -1,0 +1,215 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" id="Definitions_Final_Model_Variant_2" targetNamespace="http://example.com/sepsis" exporter="Camunda Modeler" exporterVersion="8">
+  <bpmn:process id="Process_Final_Model_Variant_2" name="Final Model Variant 2 Flat" isExecutable="true">
+    <bpmn:startEvent id="StartEvent_1" name="START"><bpmn:outgoing>Flow_Start_To_ERRegistration</bpmn:outgoing></bpmn:startEvent>
+    <bpmn:task id="Activity_ER_Registration" name="ER Registration"><bpmn:incoming>Flow_Start_To_ERRegistration</bpmn:incoming><bpmn:outgoing>Flow_ERRegistration_To_ERTriage</bpmn:outgoing></bpmn:task>
+    <bpmn:task id="Activity_ER_Triage" name="ER Triage"><bpmn:incoming>Flow_ERRegistration_To_ERTriage</bpmn:incoming><bpmn:outgoing>Flow_ERTriage_To_PostSplit</bpmn:outgoing></bpmn:task>
+
+    <bpmn:parallelGateway id="Gateway_PostTriage_Split" name="post_triage_region split"><bpmn:incoming>Flow_ERTriage_To_PostSplit</bpmn:incoming><bpmn:outgoing>Flow_PostSplit_To_Sepsis</bpmn:outgoing><bpmn:outgoing>Flow_PostSplit_To_ClinicalSplit</bpmn:outgoing></bpmn:parallelGateway>
+    <bpmn:task id="Activity_ER_Sepsis_Triage" name="ER Sepsis Triage"><bpmn:incoming>Flow_PostSplit_To_Sepsis</bpmn:incoming><bpmn:outgoing>Flow_Sepsis_To_PostJoin</bpmn:outgoing></bpmn:task>
+
+    <bpmn:parallelGateway id="Gateway_Clinical_Split" name="clinical_block split"><bpmn:incoming>Flow_PostSplit_To_ClinicalSplit</bpmn:incoming><bpmn:outgoing>Flow_ClinicalSplit_To_LabLoopEntry</bpmn:outgoing><bpmn:outgoing>Flow_ClinicalSplit_To_IVLiquidXorSplit</bpmn:outgoing><bpmn:outgoing>Flow_ClinicalSplit_To_IVAntibioticsXorSplit</bpmn:outgoing><bpmn:outgoing>Flow_ClinicalSplit_To_AdmissionNCXorSplit</bpmn:outgoing><bpmn:outgoing>Flow_ClinicalSplit_To_AdmissionICXorSplit</bpmn:outgoing></bpmn:parallelGateway>
+
+    <bpmn:exclusiveGateway id="Gateway_LabLoop_Entry" name="lab_loop entry"><bpmn:incoming>Flow_ClinicalSplit_To_LabLoopEntry</bpmn:incoming><bpmn:incoming>Flow_LabRedo_To_LabLoopEntry</bpmn:incoming><bpmn:outgoing>Flow_LabLoopEntry_To_LabRoundSplit</bpmn:outgoing></bpmn:exclusiveGateway>
+    <bpmn:parallelGateway id="Gateway_LabRound_Split" name="lab_round split"><bpmn:incoming>Flow_LabLoopEntry_To_LabRoundSplit</bpmn:incoming><bpmn:outgoing>Flow_LabRoundSplit_To_CRP</bpmn:outgoing><bpmn:outgoing>Flow_LabRoundSplit_To_Leucocytes</bpmn:outgoing><bpmn:outgoing>Flow_LabRoundSplit_To_LacticXorSplit</bpmn:outgoing></bpmn:parallelGateway>
+    <bpmn:task id="Activity_CRP" name="CRP"><bpmn:incoming>Flow_LabRoundSplit_To_CRP</bpmn:incoming><bpmn:outgoing>Flow_CRP_To_LabRoundJoin</bpmn:outgoing></bpmn:task>
+    <bpmn:task id="Activity_Leucocytes" name="Leucocytes"><bpmn:incoming>Flow_LabRoundSplit_To_Leucocytes</bpmn:incoming><bpmn:outgoing>Flow_Leucocytes_To_LabRoundJoin</bpmn:outgoing></bpmn:task>
+    <bpmn:exclusiveGateway id="Gateway_Lactic_Xor_Split" name="optional LacticAcid split"><bpmn:incoming>Flow_LabRoundSplit_To_LacticXorSplit</bpmn:incoming><bpmn:outgoing>Flow_LacticXorSplit_To_LacticAcid</bpmn:outgoing><bpmn:outgoing>Flow_LacticXorSplit_To_LacticSkipJoin</bpmn:outgoing></bpmn:exclusiveGateway>
+    <bpmn:task id="Activity_LacticAcid" name="LacticAcid"><bpmn:incoming>Flow_LacticXorSplit_To_LacticAcid</bpmn:incoming><bpmn:outgoing>Flow_LacticAcid_To_LacticXorJoin</bpmn:outgoing></bpmn:task>
+    <bpmn:exclusiveGateway id="Gateway_Lactic_Xor_Join" name="optional LacticAcid join"><bpmn:incoming>Flow_LacticAcid_To_LacticXorJoin</bpmn:incoming><bpmn:incoming>Flow_LacticXorSplit_To_LacticSkipJoin</bpmn:incoming><bpmn:outgoing>Flow_LacticXorJoin_To_LabRoundJoin</bpmn:outgoing></bpmn:exclusiveGateway>
+    <bpmn:parallelGateway id="Gateway_LabRound_Join" name="lab_round join"><bpmn:incoming>Flow_CRP_To_LabRoundJoin</bpmn:incoming><bpmn:incoming>Flow_Leucocytes_To_LabRoundJoin</bpmn:incoming><bpmn:incoming>Flow_LacticXorJoin_To_LabRoundJoin</bpmn:incoming><bpmn:outgoing>Flow_LabRoundJoin_To_LabLoopDecision</bpmn:outgoing></bpmn:parallelGateway>
+    <bpmn:exclusiveGateway id="Gateway_LabLoop_Decision" name="lab_loop redo/exit"><bpmn:incoming>Flow_LabRoundJoin_To_LabLoopDecision</bpmn:incoming><bpmn:outgoing>Flow_LabRedo_To_LabLoopEntry</bpmn:outgoing><bpmn:outgoing>Flow_LabLoopDecision_To_ClinicalJoin</bpmn:outgoing></bpmn:exclusiveGateway>
+
+    <bpmn:exclusiveGateway id="Gateway_IVLiquid_Xor_Split" name="optional IV Liquid split"><bpmn:incoming>Flow_ClinicalSplit_To_IVLiquidXorSplit</bpmn:incoming><bpmn:outgoing>Flow_IVLiquidXorSplit_To_IVLiquid</bpmn:outgoing><bpmn:outgoing>Flow_IVLiquidXorSplit_To_IVLiquidSkipJoin</bpmn:outgoing></bpmn:exclusiveGateway>
+    <bpmn:task id="Activity_IV_Liquid" name="IV Liquid"><bpmn:incoming>Flow_IVLiquidXorSplit_To_IVLiquid</bpmn:incoming><bpmn:outgoing>Flow_IVLiquid_To_IVLiquidXorJoin</bpmn:outgoing></bpmn:task>
+    <bpmn:exclusiveGateway id="Gateway_IVLiquid_Xor_Join" name="optional IV Liquid join"><bpmn:incoming>Flow_IVLiquid_To_IVLiquidXorJoin</bpmn:incoming><bpmn:incoming>Flow_IVLiquidXorSplit_To_IVLiquidSkipJoin</bpmn:incoming><bpmn:outgoing>Flow_IVLiquidXorJoin_To_ClinicalJoin</bpmn:outgoing></bpmn:exclusiveGateway>
+
+    <bpmn:exclusiveGateway id="Gateway_IVAntibiotics_Xor_Split" name="optional IV Antibiotics split"><bpmn:incoming>Flow_ClinicalSplit_To_IVAntibioticsXorSplit</bpmn:incoming><bpmn:outgoing>Flow_IVAntibioticsXorSplit_To_IVAntibiotics</bpmn:outgoing><bpmn:outgoing>Flow_IVAntibioticsXorSplit_To_IVAntibioticsSkipJoin</bpmn:outgoing></bpmn:exclusiveGateway>
+    <bpmn:task id="Activity_IV_Antibiotics" name="IV Antibiotics"><bpmn:incoming>Flow_IVAntibioticsXorSplit_To_IVAntibiotics</bpmn:incoming><bpmn:outgoing>Flow_IVAntibiotics_To_IVAntibioticsXorJoin</bpmn:outgoing></bpmn:task>
+    <bpmn:exclusiveGateway id="Gateway_IVAntibiotics_Xor_Join" name="optional IV Antibiotics join"><bpmn:incoming>Flow_IVAntibiotics_To_IVAntibioticsXorJoin</bpmn:incoming><bpmn:incoming>Flow_IVAntibioticsXorSplit_To_IVAntibioticsSkipJoin</bpmn:incoming><bpmn:outgoing>Flow_IVAntibioticsXorJoin_To_ClinicalJoin</bpmn:outgoing></bpmn:exclusiveGateway>
+
+    <bpmn:exclusiveGateway id="Gateway_AdmissionNC_Xor_Split" name="optional Admission NC split"><bpmn:incoming>Flow_ClinicalSplit_To_AdmissionNCXorSplit</bpmn:incoming><bpmn:outgoing>Flow_AdmissionNCXorSplit_To_AdmissionNC</bpmn:outgoing><bpmn:outgoing>Flow_AdmissionNCXorSplit_To_AdmissionNCSkipJoin</bpmn:outgoing></bpmn:exclusiveGateway>
+    <bpmn:task id="Activity_Admission_NC" name="Admission NC"><bpmn:incoming>Flow_AdmissionNCXorSplit_To_AdmissionNC</bpmn:incoming><bpmn:outgoing>Flow_AdmissionNC_To_AdmissionNCXorJoin</bpmn:outgoing></bpmn:task>
+    <bpmn:exclusiveGateway id="Gateway_AdmissionNC_Xor_Join" name="optional Admission NC join"><bpmn:incoming>Flow_AdmissionNC_To_AdmissionNCXorJoin</bpmn:incoming><bpmn:incoming>Flow_AdmissionNCXorSplit_To_AdmissionNCSkipJoin</bpmn:incoming><bpmn:outgoing>Flow_AdmissionNCXorJoin_To_ClinicalJoin</bpmn:outgoing></bpmn:exclusiveGateway>
+
+    <bpmn:exclusiveGateway id="Gateway_AdmissionIC_Xor_Split" name="optional Admission IC split"><bpmn:incoming>Flow_ClinicalSplit_To_AdmissionICXorSplit</bpmn:incoming><bpmn:outgoing>Flow_AdmissionICXorSplit_To_AdmissionIC</bpmn:outgoing><bpmn:outgoing>Flow_AdmissionICXorSplit_To_AdmissionICSkipJoin</bpmn:outgoing></bpmn:exclusiveGateway>
+    <bpmn:task id="Activity_Admission_IC" name="Admission IC"><bpmn:incoming>Flow_AdmissionICXorSplit_To_AdmissionIC</bpmn:incoming><bpmn:outgoing>Flow_AdmissionIC_To_AdmissionICXorJoin</bpmn:outgoing></bpmn:task>
+    <bpmn:exclusiveGateway id="Gateway_AdmissionIC_Xor_Join" name="optional Admission IC join"><bpmn:incoming>Flow_AdmissionIC_To_AdmissionICXorJoin</bpmn:incoming><bpmn:incoming>Flow_AdmissionICXorSplit_To_AdmissionICSkipJoin</bpmn:incoming><bpmn:outgoing>Flow_AdmissionICXorJoin_To_ClinicalJoin</bpmn:outgoing></bpmn:exclusiveGateway>
+
+    <bpmn:parallelGateway id="Gateway_Clinical_Join" name="clinical_block join"><bpmn:incoming>Flow_LabLoopDecision_To_ClinicalJoin</bpmn:incoming><bpmn:incoming>Flow_IVLiquidXorJoin_To_ClinicalJoin</bpmn:incoming><bpmn:incoming>Flow_IVAntibioticsXorJoin_To_ClinicalJoin</bpmn:incoming><bpmn:incoming>Flow_AdmissionNCXorJoin_To_ClinicalJoin</bpmn:incoming><bpmn:incoming>Flow_AdmissionICXorJoin_To_ClinicalJoin</bpmn:incoming><bpmn:outgoing>Flow_ClinicalJoin_To_PostJoin</bpmn:outgoing></bpmn:parallelGateway>
+    <bpmn:parallelGateway id="Gateway_PostTriage_Join" name="post_triage_region join"><bpmn:incoming>Flow_Sepsis_To_PostJoin</bpmn:incoming><bpmn:incoming>Flow_ClinicalJoin_To_PostJoin</bpmn:incoming><bpmn:outgoing>Flow_PostJoin_To_ReleaseXorSplit</bpmn:outgoing></bpmn:parallelGateway>
+
+    <bpmn:exclusiveGateway id="Gateway_Release_Xor_Split" name="release_block split"><bpmn:incoming>Flow_PostJoin_To_ReleaseXorSplit</bpmn:incoming><bpmn:outgoing>Flow_ReleaseXorSplit_To_ReleaseA</bpmn:outgoing><bpmn:outgoing>Flow_ReleaseXorSplit_To_ReleaseB</bpmn:outgoing><bpmn:outgoing>Flow_ReleaseXorSplit_To_ReleaseC</bpmn:outgoing><bpmn:outgoing>Flow_ReleaseXorSplit_To_ReleaseD</bpmn:outgoing><bpmn:outgoing>Flow_ReleaseXorSplit_To_ReleaseE</bpmn:outgoing><bpmn:outgoing>Flow_ReleaseXorSplit_To_ReleaseSkipJoin</bpmn:outgoing></bpmn:exclusiveGateway>
+    <bpmn:task id="Activity_Release_A" name="Release A"><bpmn:incoming>Flow_ReleaseXorSplit_To_ReleaseA</bpmn:incoming><bpmn:outgoing>Flow_ReleaseA_To_ReturnXorSplit</bpmn:outgoing></bpmn:task>
+    <bpmn:exclusiveGateway id="Gateway_Return_Xor_Split" name="optional Return ER split"><bpmn:incoming>Flow_ReleaseA_To_ReturnXorSplit</bpmn:incoming><bpmn:outgoing>Flow_ReturnXorSplit_To_ReturnER</bpmn:outgoing><bpmn:outgoing>Flow_ReturnXorSplit_To_ReturnSkipJoin</bpmn:outgoing></bpmn:exclusiveGateway>
+    <bpmn:task id="Activity_Return_ER" name="Return ER"><bpmn:incoming>Flow_ReturnXorSplit_To_ReturnER</bpmn:incoming><bpmn:outgoing>Flow_ReturnER_To_ReturnXorJoin</bpmn:outgoing></bpmn:task>
+    <bpmn:exclusiveGateway id="Gateway_Return_Xor_Join" name="optional Return ER join"><bpmn:incoming>Flow_ReturnER_To_ReturnXorJoin</bpmn:incoming><bpmn:incoming>Flow_ReturnXorSplit_To_ReturnSkipJoin</bpmn:incoming><bpmn:outgoing>Flow_ReturnXorJoin_To_ReleaseXorJoin</bpmn:outgoing></bpmn:exclusiveGateway>
+    <bpmn:task id="Activity_Release_B" name="Release B"><bpmn:incoming>Flow_ReleaseXorSplit_To_ReleaseB</bpmn:incoming><bpmn:outgoing>Flow_ReleaseB_To_ReleaseXorJoin</bpmn:outgoing></bpmn:task>
+    <bpmn:task id="Activity_Release_C" name="Release C"><bpmn:incoming>Flow_ReleaseXorSplit_To_ReleaseC</bpmn:incoming><bpmn:outgoing>Flow_ReleaseC_To_ReleaseXorJoin</bpmn:outgoing></bpmn:task>
+    <bpmn:task id="Activity_Release_D" name="Release D"><bpmn:incoming>Flow_ReleaseXorSplit_To_ReleaseD</bpmn:incoming><bpmn:outgoing>Flow_ReleaseD_To_ReleaseXorJoin</bpmn:outgoing></bpmn:task>
+    <bpmn:task id="Activity_Release_E" name="Release E"><bpmn:incoming>Flow_ReleaseXorSplit_To_ReleaseE</bpmn:incoming><bpmn:outgoing>Flow_ReleaseE_To_ReleaseXorJoin</bpmn:outgoing></bpmn:task>
+    <bpmn:exclusiveGateway id="Gateway_Release_Xor_Join" name="release_block join"><bpmn:incoming>Flow_ReturnXorJoin_To_ReleaseXorJoin</bpmn:incoming><bpmn:incoming>Flow_ReleaseB_To_ReleaseXorJoin</bpmn:incoming><bpmn:incoming>Flow_ReleaseC_To_ReleaseXorJoin</bpmn:incoming><bpmn:incoming>Flow_ReleaseD_To_ReleaseXorJoin</bpmn:incoming><bpmn:incoming>Flow_ReleaseE_To_ReleaseXorJoin</bpmn:incoming><bpmn:incoming>Flow_ReleaseXorSplit_To_ReleaseSkipJoin</bpmn:incoming><bpmn:outgoing>Flow_ReleaseXorJoin_To_End</bpmn:outgoing></bpmn:exclusiveGateway>
+    <bpmn:endEvent id="EndEvent_1" name="END"><bpmn:incoming>Flow_ReleaseXorJoin_To_End</bpmn:incoming></bpmn:endEvent>
+
+    <bpmn:sequenceFlow id="Flow_Start_To_ERRegistration" sourceRef="StartEvent_1" targetRef="Activity_ER_Registration" />
+    <bpmn:sequenceFlow id="Flow_ERRegistration_To_ERTriage" sourceRef="Activity_ER_Registration" targetRef="Activity_ER_Triage" />
+    <bpmn:sequenceFlow id="Flow_ERTriage_To_PostSplit" sourceRef="Activity_ER_Triage" targetRef="Gateway_PostTriage_Split" />
+    <bpmn:sequenceFlow id="Flow_PostSplit_To_Sepsis" sourceRef="Gateway_PostTriage_Split" targetRef="Activity_ER_Sepsis_Triage" />
+    <bpmn:sequenceFlow id="Flow_Sepsis_To_PostJoin" sourceRef="Activity_ER_Sepsis_Triage" targetRef="Gateway_PostTriage_Join" />
+    <bpmn:sequenceFlow id="Flow_PostSplit_To_ClinicalSplit" sourceRef="Gateway_PostTriage_Split" targetRef="Gateway_Clinical_Split" />
+    <bpmn:sequenceFlow id="Flow_ClinicalSplit_To_LabLoopEntry" sourceRef="Gateway_Clinical_Split" targetRef="Gateway_LabLoop_Entry" />
+    <bpmn:sequenceFlow id="Flow_LabLoopEntry_To_LabRoundSplit" sourceRef="Gateway_LabLoop_Entry" targetRef="Gateway_LabRound_Split" />
+    <bpmn:sequenceFlow id="Flow_LabRoundSplit_To_CRP" sourceRef="Gateway_LabRound_Split" targetRef="Activity_CRP" />
+    <bpmn:sequenceFlow id="Flow_CRP_To_LabRoundJoin" sourceRef="Activity_CRP" targetRef="Gateway_LabRound_Join" />
+    <bpmn:sequenceFlow id="Flow_LabRoundSplit_To_Leucocytes" sourceRef="Gateway_LabRound_Split" targetRef="Activity_Leucocytes" />
+    <bpmn:sequenceFlow id="Flow_Leucocytes_To_LabRoundJoin" sourceRef="Activity_Leucocytes" targetRef="Gateway_LabRound_Join" />
+    <bpmn:sequenceFlow id="Flow_LabRoundSplit_To_LacticXorSplit" sourceRef="Gateway_LabRound_Split" targetRef="Gateway_Lactic_Xor_Split" />
+    <bpmn:sequenceFlow id="Flow_LacticXorSplit_To_LacticAcid" sourceRef="Gateway_Lactic_Xor_Split" targetRef="Activity_LacticAcid" />
+    <bpmn:sequenceFlow id="Flow_LacticAcid_To_LacticXorJoin" sourceRef="Activity_LacticAcid" targetRef="Gateway_Lactic_Xor_Join" />
+    <bpmn:sequenceFlow id="Flow_LacticXorSplit_To_LacticSkipJoin" sourceRef="Gateway_Lactic_Xor_Split" targetRef="Gateway_Lactic_Xor_Join" />
+    <bpmn:sequenceFlow id="Flow_LacticXorJoin_To_LabRoundJoin" sourceRef="Gateway_Lactic_Xor_Join" targetRef="Gateway_LabRound_Join" />
+    <bpmn:sequenceFlow id="Flow_LabRoundJoin_To_LabLoopDecision" sourceRef="Gateway_LabRound_Join" targetRef="Gateway_LabLoop_Decision" />
+    <bpmn:sequenceFlow id="Flow_LabRedo_To_LabLoopEntry" sourceRef="Gateway_LabLoop_Decision" targetRef="Gateway_LabLoop_Entry" />
+    <bpmn:sequenceFlow id="Flow_LabLoopDecision_To_ClinicalJoin" sourceRef="Gateway_LabLoop_Decision" targetRef="Gateway_Clinical_Join" />
+    <bpmn:sequenceFlow id="Flow_ClinicalSplit_To_IVLiquidXorSplit" sourceRef="Gateway_Clinical_Split" targetRef="Gateway_IVLiquid_Xor_Split" />
+    <bpmn:sequenceFlow id="Flow_IVLiquidXorSplit_To_IVLiquid" sourceRef="Gateway_IVLiquid_Xor_Split" targetRef="Activity_IV_Liquid" />
+    <bpmn:sequenceFlow id="Flow_IVLiquid_To_IVLiquidXorJoin" sourceRef="Activity_IV_Liquid" targetRef="Gateway_IVLiquid_Xor_Join" />
+    <bpmn:sequenceFlow id="Flow_IVLiquidXorSplit_To_IVLiquidSkipJoin" sourceRef="Gateway_IVLiquid_Xor_Split" targetRef="Gateway_IVLiquid_Xor_Join" />
+    <bpmn:sequenceFlow id="Flow_IVLiquidXorJoin_To_ClinicalJoin" sourceRef="Gateway_IVLiquid_Xor_Join" targetRef="Gateway_Clinical_Join" />
+    <bpmn:sequenceFlow id="Flow_ClinicalSplit_To_IVAntibioticsXorSplit" sourceRef="Gateway_Clinical_Split" targetRef="Gateway_IVAntibiotics_Xor_Split" />
+    <bpmn:sequenceFlow id="Flow_IVAntibioticsXorSplit_To_IVAntibiotics" sourceRef="Gateway_IVAntibiotics_Xor_Split" targetRef="Activity_IV_Antibiotics" />
+    <bpmn:sequenceFlow id="Flow_IVAntibiotics_To_IVAntibioticsXorJoin" sourceRef="Activity_IV_Antibiotics" targetRef="Gateway_IVAntibiotics_Xor_Join" />
+    <bpmn:sequenceFlow id="Flow_IVAntibioticsXorSplit_To_IVAntibioticsSkipJoin" sourceRef="Gateway_IVAntibiotics_Xor_Split" targetRef="Gateway_IVAntibiotics_Xor_Join" />
+    <bpmn:sequenceFlow id="Flow_IVAntibioticsXorJoin_To_ClinicalJoin" sourceRef="Gateway_IVAntibiotics_Xor_Join" targetRef="Gateway_Clinical_Join" />
+    <bpmn:sequenceFlow id="Flow_ClinicalSplit_To_AdmissionNCXorSplit" sourceRef="Gateway_Clinical_Split" targetRef="Gateway_AdmissionNC_Xor_Split" />
+    <bpmn:sequenceFlow id="Flow_AdmissionNCXorSplit_To_AdmissionNC" sourceRef="Gateway_AdmissionNC_Xor_Split" targetRef="Activity_Admission_NC" />
+    <bpmn:sequenceFlow id="Flow_AdmissionNC_To_AdmissionNCXorJoin" sourceRef="Activity_Admission_NC" targetRef="Gateway_AdmissionNC_Xor_Join" />
+    <bpmn:sequenceFlow id="Flow_AdmissionNCXorSplit_To_AdmissionNCSkipJoin" sourceRef="Gateway_AdmissionNC_Xor_Split" targetRef="Gateway_AdmissionNC_Xor_Join" />
+    <bpmn:sequenceFlow id="Flow_AdmissionNCXorJoin_To_ClinicalJoin" sourceRef="Gateway_AdmissionNC_Xor_Join" targetRef="Gateway_Clinical_Join" />
+    <bpmn:sequenceFlow id="Flow_ClinicalSplit_To_AdmissionICXorSplit" sourceRef="Gateway_Clinical_Split" targetRef="Gateway_AdmissionIC_Xor_Split" />
+    <bpmn:sequenceFlow id="Flow_AdmissionICXorSplit_To_AdmissionIC" sourceRef="Gateway_AdmissionIC_Xor_Split" targetRef="Activity_Admission_IC" />
+    <bpmn:sequenceFlow id="Flow_AdmissionIC_To_AdmissionICXorJoin" sourceRef="Activity_Admission_IC" targetRef="Gateway_AdmissionIC_Xor_Join" />
+    <bpmn:sequenceFlow id="Flow_AdmissionICXorSplit_To_AdmissionICSkipJoin" sourceRef="Gateway_AdmissionIC_Xor_Split" targetRef="Gateway_AdmissionIC_Xor_Join" />
+    <bpmn:sequenceFlow id="Flow_AdmissionICXorJoin_To_ClinicalJoin" sourceRef="Gateway_AdmissionIC_Xor_Join" targetRef="Gateway_Clinical_Join" />
+    <bpmn:sequenceFlow id="Flow_ClinicalJoin_To_PostJoin" sourceRef="Gateway_Clinical_Join" targetRef="Gateway_PostTriage_Join" />
+    <bpmn:sequenceFlow id="Flow_PostJoin_To_ReleaseXorSplit" sourceRef="Gateway_PostTriage_Join" targetRef="Gateway_Release_Xor_Split" />
+    <bpmn:sequenceFlow id="Flow_ReleaseXorSplit_To_ReleaseA" sourceRef="Gateway_Release_Xor_Split" targetRef="Activity_Release_A" />
+    <bpmn:sequenceFlow id="Flow_ReleaseA_To_ReturnXorSplit" sourceRef="Activity_Release_A" targetRef="Gateway_Return_Xor_Split" />
+    <bpmn:sequenceFlow id="Flow_ReturnXorSplit_To_ReturnER" sourceRef="Gateway_Return_Xor_Split" targetRef="Activity_Return_ER" />
+    <bpmn:sequenceFlow id="Flow_ReturnER_To_ReturnXorJoin" sourceRef="Activity_Return_ER" targetRef="Gateway_Return_Xor_Join" />
+    <bpmn:sequenceFlow id="Flow_ReturnXorSplit_To_ReturnSkipJoin" sourceRef="Gateway_Return_Xor_Split" targetRef="Gateway_Return_Xor_Join" />
+    <bpmn:sequenceFlow id="Flow_ReturnXorJoin_To_ReleaseXorJoin" sourceRef="Gateway_Return_Xor_Join" targetRef="Gateway_Release_Xor_Join" />
+    <bpmn:sequenceFlow id="Flow_ReleaseXorSplit_To_ReleaseB" sourceRef="Gateway_Release_Xor_Split" targetRef="Activity_Release_B" />
+    <bpmn:sequenceFlow id="Flow_ReleaseB_To_ReleaseXorJoin" sourceRef="Activity_Release_B" targetRef="Gateway_Release_Xor_Join" />
+    <bpmn:sequenceFlow id="Flow_ReleaseXorSplit_To_ReleaseC" sourceRef="Gateway_Release_Xor_Split" targetRef="Activity_Release_C" />
+    <bpmn:sequenceFlow id="Flow_ReleaseC_To_ReleaseXorJoin" sourceRef="Activity_Release_C" targetRef="Gateway_Release_Xor_Join" />
+    <bpmn:sequenceFlow id="Flow_ReleaseXorSplit_To_ReleaseD" sourceRef="Gateway_Release_Xor_Split" targetRef="Activity_Release_D" />
+    <bpmn:sequenceFlow id="Flow_ReleaseD_To_ReleaseXorJoin" sourceRef="Activity_Release_D" targetRef="Gateway_Release_Xor_Join" />
+    <bpmn:sequenceFlow id="Flow_ReleaseXorSplit_To_ReleaseE" sourceRef="Gateway_Release_Xor_Split" targetRef="Activity_Release_E" />
+    <bpmn:sequenceFlow id="Flow_ReleaseE_To_ReleaseXorJoin" sourceRef="Activity_Release_E" targetRef="Gateway_Release_Xor_Join" />
+    <bpmn:sequenceFlow id="Flow_ReleaseXorSplit_To_ReleaseSkipJoin" sourceRef="Gateway_Release_Xor_Split" targetRef="Gateway_Release_Xor_Join" />
+    <bpmn:sequenceFlow id="Flow_ReleaseXorJoin_To_End" sourceRef="Gateway_Release_Xor_Join" targetRef="EndEvent_1" />
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_Final_Model_Variant_2">
+    <bpmndi:BPMNPlane id="BPMNPlane_Final_Model_Variant_2" bpmnElement="Process_Final_Model_Variant_2">
+      <bpmndi:BPMNShape id="StartEvent_1_di" bpmnElement="StartEvent_1"><dc:Bounds x="100" y="360" width="36" height="36" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_ER_Registration_di" bpmnElement="Activity_ER_Registration"><dc:Bounds x="180" y="338" width="120" height="80" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_ER_Triage_di" bpmnElement="Activity_ER_Triage"><dc:Bounds x="340" y="338" width="120" height="80" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_PostTriage_Split_di" bpmnElement="Gateway_PostTriage_Split"><dc:Bounds x="500" y="353" width="50" height="50" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_ER_Sepsis_Triage_di" bpmnElement="Activity_ER_Sepsis_Triage"><dc:Bounds x="610" y="190" width="130" height="80" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_Clinical_Split_di" bpmnElement="Gateway_Clinical_Split"><dc:Bounds x="610" y="500" width="50" height="50" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_LabLoop_Entry_di" bpmnElement="Gateway_LabLoop_Entry"><dc:Bounds x="730" y="370" width="50" height="50" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_LabRound_Split_di" bpmnElement="Gateway_LabRound_Split"><dc:Bounds x="830" y="370" width="50" height="50" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_CRP_di" bpmnElement="Activity_CRP"><dc:Bounds x="940" y="250" width="100" height="70" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_Leucocytes_di" bpmnElement="Activity_Leucocytes"><dc:Bounds x="940" y="370" width="120" height="70" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_Lactic_Xor_Split_di" bpmnElement="Gateway_Lactic_Xor_Split"><dc:Bounds x="940" y="520" width="50" height="50" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_LacticAcid_di" bpmnElement="Activity_LacticAcid"><dc:Bounds x="1050" y="510" width="120" height="70" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_Lactic_Xor_Join_di" bpmnElement="Gateway_Lactic_Xor_Join"><dc:Bounds x="1210" y="520" width="50" height="50" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_LabRound_Join_di" bpmnElement="Gateway_LabRound_Join"><dc:Bounds x="1310" y="370" width="50" height="50" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_LabLoop_Decision_di" bpmnElement="Gateway_LabLoop_Decision"><dc:Bounds x="1410" y="370" width="50" height="50" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_IVLiquid_Xor_Split_di" bpmnElement="Gateway_IVLiquid_Xor_Split"><dc:Bounds x="730" y="620" width="50" height="50" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_IV_Liquid_di" bpmnElement="Activity_IV_Liquid"><dc:Bounds x="840" y="610" width="110" height="70" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_IVLiquid_Xor_Join_di" bpmnElement="Gateway_IVLiquid_Xor_Join"><dc:Bounds x="990" y="620" width="50" height="50" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_IVAntibiotics_Xor_Split_di" bpmnElement="Gateway_IVAntibiotics_Xor_Split"><dc:Bounds x="730" y="740" width="50" height="50" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_IV_Antibiotics_di" bpmnElement="Activity_IV_Antibiotics"><dc:Bounds x="840" y="730" width="130" height="70" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_IVAntibiotics_Xor_Join_di" bpmnElement="Gateway_IVAntibiotics_Xor_Join"><dc:Bounds x="1010" y="740" width="50" height="50" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_AdmissionNC_Xor_Split_di" bpmnElement="Gateway_AdmissionNC_Xor_Split"><dc:Bounds x="730" y="860" width="50" height="50" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_Admission_NC_di" bpmnElement="Activity_Admission_NC"><dc:Bounds x="840" y="850" width="130" height="70" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_AdmissionNC_Xor_Join_di" bpmnElement="Gateway_AdmissionNC_Xor_Join"><dc:Bounds x="1010" y="860" width="50" height="50" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_AdmissionIC_Xor_Split_di" bpmnElement="Gateway_AdmissionIC_Xor_Split"><dc:Bounds x="730" y="980" width="50" height="50" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_Admission_IC_di" bpmnElement="Activity_Admission_IC"><dc:Bounds x="840" y="970" width="130" height="70" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_AdmissionIC_Xor_Join_di" bpmnElement="Gateway_AdmissionIC_Xor_Join"><dc:Bounds x="1010" y="980" width="50" height="50" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_Clinical_Join_di" bpmnElement="Gateway_Clinical_Join"><dc:Bounds x="1540" y="620" width="50" height="50" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_PostTriage_Join_di" bpmnElement="Gateway_PostTriage_Join"><dc:Bounds x="1650" y="353" width="50" height="50" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_Release_Xor_Split_di" bpmnElement="Gateway_Release_Xor_Split"><dc:Bounds x="1760" y="353" width="50" height="50" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_Release_A_di" bpmnElement="Activity_Release_A"><dc:Bounds x="1870" y="130" width="110" height="70" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_Return_Xor_Split_di" bpmnElement="Gateway_Return_Xor_Split"><dc:Bounds x="2020" y="140" width="50" height="50" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_Return_ER_di" bpmnElement="Activity_Return_ER"><dc:Bounds x="2130" y="80" width="110" height="70" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_Return_Xor_Join_di" bpmnElement="Gateway_Return_Xor_Join"><dc:Bounds x="2280" y="140" width="50" height="50" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_Release_B_di" bpmnElement="Activity_Release_B"><dc:Bounds x="1870" y="250" width="110" height="70" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_Release_C_di" bpmnElement="Activity_Release_C"><dc:Bounds x="1870" y="370" width="110" height="70" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_Release_D_di" bpmnElement="Activity_Release_D"><dc:Bounds x="1870" y="490" width="110" height="70" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_Release_E_di" bpmnElement="Activity_Release_E"><dc:Bounds x="1870" y="610" width="110" height="70" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_Release_Xor_Join_di" bpmnElement="Gateway_Release_Xor_Join"><dc:Bounds x="2400" y="353" width="50" height="50" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="EndEvent_1_di" bpmnElement="EndEvent_1"><dc:Bounds x="2510" y="360" width="36" height="36" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Flow_Start_To_ERRegistration_di" bpmnElement="Flow_Start_To_ERRegistration"><di:waypoint x="118" y="378" /><di:waypoint x="240" y="378" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_ERRegistration_To_ERTriage_di" bpmnElement="Flow_ERRegistration_To_ERTriage"><di:waypoint x="240" y="378" /><di:waypoint x="400" y="378" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_ERTriage_To_PostSplit_di" bpmnElement="Flow_ERTriage_To_PostSplit"><di:waypoint x="400" y="378" /><di:waypoint x="525" y="378" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_PostSplit_To_Sepsis_di" bpmnElement="Flow_PostSplit_To_Sepsis"><di:waypoint x="525" y="378" /><di:waypoint x="675" y="230" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_Sepsis_To_PostJoin_di" bpmnElement="Flow_Sepsis_To_PostJoin"><di:waypoint x="675" y="230" /><di:waypoint x="1675" y="378" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_PostSplit_To_ClinicalSplit_di" bpmnElement="Flow_PostSplit_To_ClinicalSplit"><di:waypoint x="525" y="378" /><di:waypoint x="635" y="525" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_ClinicalSplit_To_LabLoopEntry_di" bpmnElement="Flow_ClinicalSplit_To_LabLoopEntry"><di:waypoint x="635" y="525" /><di:waypoint x="755" y="395" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_LabLoopEntry_To_LabRoundSplit_di" bpmnElement="Flow_LabLoopEntry_To_LabRoundSplit"><di:waypoint x="755" y="395" /><di:waypoint x="855" y="395" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_LabRoundSplit_To_CRP_di" bpmnElement="Flow_LabRoundSplit_To_CRP"><di:waypoint x="855" y="395" /><di:waypoint x="990" y="285" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_CRP_To_LabRoundJoin_di" bpmnElement="Flow_CRP_To_LabRoundJoin"><di:waypoint x="990" y="285" /><di:waypoint x="1335" y="395" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_LabRoundSplit_To_Leucocytes_di" bpmnElement="Flow_LabRoundSplit_To_Leucocytes"><di:waypoint x="855" y="395" /><di:waypoint x="1000" y="405" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_Leucocytes_To_LabRoundJoin_di" bpmnElement="Flow_Leucocytes_To_LabRoundJoin"><di:waypoint x="1000" y="405" /><di:waypoint x="1335" y="395" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_LabRoundSplit_To_LacticXorSplit_di" bpmnElement="Flow_LabRoundSplit_To_LacticXorSplit"><di:waypoint x="855" y="395" /><di:waypoint x="965" y="545" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_LacticXorSplit_To_LacticAcid_di" bpmnElement="Flow_LacticXorSplit_To_LacticAcid"><di:waypoint x="965" y="545" /><di:waypoint x="1110" y="545" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_LacticAcid_To_LacticXorJoin_di" bpmnElement="Flow_LacticAcid_To_LacticXorJoin"><di:waypoint x="1110" y="545" /><di:waypoint x="1235" y="545" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_LacticXorSplit_To_LacticSkipJoin_di" bpmnElement="Flow_LacticXorSplit_To_LacticSkipJoin"><di:waypoint x="965" y="545" /><di:waypoint x="1235" y="545" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_LacticXorJoin_To_LabRoundJoin_di" bpmnElement="Flow_LacticXorJoin_To_LabRoundJoin"><di:waypoint x="1235" y="545" /><di:waypoint x="1335" y="395" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_LabRoundJoin_To_LabLoopDecision_di" bpmnElement="Flow_LabRoundJoin_To_LabLoopDecision"><di:waypoint x="1335" y="395" /><di:waypoint x="1435" y="395" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_LabRedo_To_LabLoopEntry_di" bpmnElement="Flow_LabRedo_To_LabLoopEntry"><di:waypoint x="1435" y="395" /><di:waypoint x="755" y="395" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_LabLoopDecision_To_ClinicalJoin_di" bpmnElement="Flow_LabLoopDecision_To_ClinicalJoin"><di:waypoint x="1435" y="395" /><di:waypoint x="1565" y="645" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_ClinicalSplit_To_IVLiquidXorSplit_di" bpmnElement="Flow_ClinicalSplit_To_IVLiquidXorSplit"><di:waypoint x="635" y="525" /><di:waypoint x="755" y="645" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_IVLiquidXorSplit_To_IVLiquid_di" bpmnElement="Flow_IVLiquidXorSplit_To_IVLiquid"><di:waypoint x="755" y="645" /><di:waypoint x="895" y="645" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_IVLiquid_To_IVLiquidXorJoin_di" bpmnElement="Flow_IVLiquid_To_IVLiquidXorJoin"><di:waypoint x="895" y="645" /><di:waypoint x="1015" y="645" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_IVLiquidXorSplit_To_IVLiquidSkipJoin_di" bpmnElement="Flow_IVLiquidXorSplit_To_IVLiquidSkipJoin"><di:waypoint x="755" y="645" /><di:waypoint x="1015" y="645" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_IVLiquidXorJoin_To_ClinicalJoin_di" bpmnElement="Flow_IVLiquidXorJoin_To_ClinicalJoin"><di:waypoint x="1015" y="645" /><di:waypoint x="1565" y="645" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_ClinicalSplit_To_IVAntibioticsXorSplit_di" bpmnElement="Flow_ClinicalSplit_To_IVAntibioticsXorSplit"><di:waypoint x="635" y="525" /><di:waypoint x="755" y="765" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_IVAntibioticsXorSplit_To_IVAntibiotics_di" bpmnElement="Flow_IVAntibioticsXorSplit_To_IVAntibiotics"><di:waypoint x="755" y="765" /><di:waypoint x="905" y="765" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_IVAntibiotics_To_IVAntibioticsXorJoin_di" bpmnElement="Flow_IVAntibiotics_To_IVAntibioticsXorJoin"><di:waypoint x="905" y="765" /><di:waypoint x="1035" y="765" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_IVAntibioticsXorSplit_To_IVAntibioticsSkipJoin_di" bpmnElement="Flow_IVAntibioticsXorSplit_To_IVAntibioticsSkipJoin"><di:waypoint x="755" y="765" /><di:waypoint x="1035" y="765" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_IVAntibioticsXorJoin_To_ClinicalJoin_di" bpmnElement="Flow_IVAntibioticsXorJoin_To_ClinicalJoin"><di:waypoint x="1035" y="765" /><di:waypoint x="1565" y="645" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_ClinicalSplit_To_AdmissionNCXorSplit_di" bpmnElement="Flow_ClinicalSplit_To_AdmissionNCXorSplit"><di:waypoint x="635" y="525" /><di:waypoint x="755" y="885" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_AdmissionNCXorSplit_To_AdmissionNC_di" bpmnElement="Flow_AdmissionNCXorSplit_To_AdmissionNC"><di:waypoint x="755" y="885" /><di:waypoint x="905" y="885" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_AdmissionNC_To_AdmissionNCXorJoin_di" bpmnElement="Flow_AdmissionNC_To_AdmissionNCXorJoin"><di:waypoint x="905" y="885" /><di:waypoint x="1035" y="885" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_AdmissionNCXorSplit_To_AdmissionNCSkipJoin_di" bpmnElement="Flow_AdmissionNCXorSplit_To_AdmissionNCSkipJoin"><di:waypoint x="755" y="885" /><di:waypoint x="1035" y="885" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_AdmissionNCXorJoin_To_ClinicalJoin_di" bpmnElement="Flow_AdmissionNCXorJoin_To_ClinicalJoin"><di:waypoint x="1035" y="885" /><di:waypoint x="1565" y="645" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_ClinicalSplit_To_AdmissionICXorSplit_di" bpmnElement="Flow_ClinicalSplit_To_AdmissionICXorSplit"><di:waypoint x="635" y="525" /><di:waypoint x="755" y="1005" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_AdmissionICXorSplit_To_AdmissionIC_di" bpmnElement="Flow_AdmissionICXorSplit_To_AdmissionIC"><di:waypoint x="755" y="1005" /><di:waypoint x="905" y="1005" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_AdmissionIC_To_AdmissionICXorJoin_di" bpmnElement="Flow_AdmissionIC_To_AdmissionICXorJoin"><di:waypoint x="905" y="1005" /><di:waypoint x="1035" y="1005" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_AdmissionICXorSplit_To_AdmissionICSkipJoin_di" bpmnElement="Flow_AdmissionICXorSplit_To_AdmissionICSkipJoin"><di:waypoint x="755" y="1005" /><di:waypoint x="1035" y="1005" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_AdmissionICXorJoin_To_ClinicalJoin_di" bpmnElement="Flow_AdmissionICXorJoin_To_ClinicalJoin"><di:waypoint x="1035" y="1005" /><di:waypoint x="1565" y="645" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_ClinicalJoin_To_PostJoin_di" bpmnElement="Flow_ClinicalJoin_To_PostJoin"><di:waypoint x="1565" y="645" /><di:waypoint x="1675" y="378" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_PostJoin_To_ReleaseXorSplit_di" bpmnElement="Flow_PostJoin_To_ReleaseXorSplit"><di:waypoint x="1675" y="378" /><di:waypoint x="1785" y="378" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_ReleaseXorSplit_To_ReleaseA_di" bpmnElement="Flow_ReleaseXorSplit_To_ReleaseA"><di:waypoint x="1785" y="378" /><di:waypoint x="1925" y="165" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_ReleaseA_To_ReturnXorSplit_di" bpmnElement="Flow_ReleaseA_To_ReturnXorSplit"><di:waypoint x="1925" y="165" /><di:waypoint x="2045" y="165" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_ReturnXorSplit_To_ReturnER_di" bpmnElement="Flow_ReturnXorSplit_To_ReturnER"><di:waypoint x="2045" y="165" /><di:waypoint x="2185" y="115" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_ReturnER_To_ReturnXorJoin_di" bpmnElement="Flow_ReturnER_To_ReturnXorJoin"><di:waypoint x="2185" y="115" /><di:waypoint x="2305" y="165" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_ReturnXorSplit_To_ReturnSkipJoin_di" bpmnElement="Flow_ReturnXorSplit_To_ReturnSkipJoin"><di:waypoint x="2045" y="165" /><di:waypoint x="2305" y="165" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_ReturnXorJoin_To_ReleaseXorJoin_di" bpmnElement="Flow_ReturnXorJoin_To_ReleaseXorJoin"><di:waypoint x="2305" y="165" /><di:waypoint x="2425" y="378" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_ReleaseXorSplit_To_ReleaseB_di" bpmnElement="Flow_ReleaseXorSplit_To_ReleaseB"><di:waypoint x="1785" y="378" /><di:waypoint x="1925" y="285" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_ReleaseB_To_ReleaseXorJoin_di" bpmnElement="Flow_ReleaseB_To_ReleaseXorJoin"><di:waypoint x="1925" y="285" /><di:waypoint x="2425" y="378" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_ReleaseXorSplit_To_ReleaseC_di" bpmnElement="Flow_ReleaseXorSplit_To_ReleaseC"><di:waypoint x="1785" y="378" /><di:waypoint x="1925" y="405" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_ReleaseC_To_ReleaseXorJoin_di" bpmnElement="Flow_ReleaseC_To_ReleaseXorJoin"><di:waypoint x="1925" y="405" /><di:waypoint x="2425" y="378" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_ReleaseXorSplit_To_ReleaseD_di" bpmnElement="Flow_ReleaseXorSplit_To_ReleaseD"><di:waypoint x="1785" y="378" /><di:waypoint x="1925" y="525" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_ReleaseD_To_ReleaseXorJoin_di" bpmnElement="Flow_ReleaseD_To_ReleaseXorJoin"><di:waypoint x="1925" y="525" /><di:waypoint x="2425" y="378" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_ReleaseXorSplit_To_ReleaseE_di" bpmnElement="Flow_ReleaseXorSplit_To_ReleaseE"><di:waypoint x="1785" y="378" /><di:waypoint x="1925" y="645" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_ReleaseE_To_ReleaseXorJoin_di" bpmnElement="Flow_ReleaseE_To_ReleaseXorJoin"><di:waypoint x="1925" y="645" /><di:waypoint x="2425" y="378" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_ReleaseXorSplit_To_ReleaseSkipJoin_di" bpmnElement="Flow_ReleaseXorSplit_To_ReleaseSkipJoin"><di:waypoint x="1785" y="378" /><di:waypoint x="2425" y="378" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_ReleaseXorJoin_To_End_di" bpmnElement="Flow_ReleaseXorJoin_To_End"><di:waypoint x="2425" y="378" /><di:waypoint x="2528" y="378" /></bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>

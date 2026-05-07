@@ -1,0 +1,90 @@
+###
+ALPHA:
+
+  Soundness                            False
+  Fitness (alignment, log)             N/A
+  Precision (alignment / ETC)          N/A
+  F1 Score                             N/A
+  Generalization                       0.4072
+  Simplicity                           0.5484
+
+  ### COMPARISON WITH LLM
+  Semantic similarity  (Jaccard acts)        1.0000  high  (>0.7)
+  Structural similarity (avg metric)         0.4494  medium (0.4–0.7)
+  Structural similarity (GED)                0.8552  high  (>0.7)
+  Structural similarity (Jaccard DFG)        0.0789  low  (<0.4)
+  Behaviour similarity (Trace Sampling)      0.0000  low  (<0.4)
+  Combined score                             0.5144  medium (0.4–0.7)
+  
+  Isolated nodes NONE
+
+### 
+HEURISTIC:
+
+  Soundness                            False
+  Fitness (alignment, log)             0.5325 N/A
+  Precision (alignment / ETC)          0.7796 N/A
+  F1 Score                             0.6328 N/A
+  Generalization                       0.7147
+  Simplicity                           0.6222
+
+  ### COMPARISON WITH LLM
+  Semantic similarity  (Jaccard acts)        1.0000  high  (>0.7)
+  Structural similarity (avg metric)         0.7342  high  (>0.7)
+  Structural similarity (GED)                0.8863  high  (>0.7)
+  Structural similarity (Jaccard DFG)        0.1772  low  (<0.4)
+  Behaviour similarity (Trace Sampling)      0.0000  low  (<0.4)
+  Combined score                             0.6408  medium (0.4–0.7)
+  
+  Isolated nodes NONE
+
+###
+INDUCTIVE:
+
+  Soundness                            True
+  Fitness (alignment, log)             0.8649 N/A
+  Precision (alignment / ETC)          0.5571 N/A
+  F1 Score                             0.6777 N/A
+  Generalization                       0.8830
+  Simplicity                           0.6500
+
+  ### COMPARISON WITH LLM
+  Semantic similarity  (Jaccard acts)        0.8750  high  (>0.7)
+  Structural similarity (avg metric)         0.9248  high  (>0.7)
+  Structural similarity (GED)                0.8811  high  (>0.7)
+  Structural similarity (Jaccard DFG)        0.4651  medium (0.4–0.7)
+  Behaviour similarity (Trace Sampling)      0.0001  low  (<0.4)
+  Combined score                             0.7562  high  (>0.7)
+  
+  Isolated nodes NONE
+
+###
+DOCTOR(GROUND):
+
+  Soundness                            True
+  Fitness (alignment, log)             0.9319
+  Precision (alignment / ETC)          0.5024
+  F1 Score                             0.6528
+  Generalization                       0.9406
+  Simplicity                           0.6444
+
+  ### COMPARISON WITH LLM
+  Semantic similarity  (Jaccard acts)        0.8750  high  (>0.7)
+  Structural similarity (avg metric)         0.8726  high  (>0.7)
+  Structural similarity (GED)                0.8791  high  (>0.7)
+  Structural similarity (Jaccard DFG)        0.4421  medium (0.4–0.7)
+  Behaviour similarity (Trace Sampling)      0.0004  low  (<0.4)
+  Combined score                             0.7314  high  (>0.7)
+  
+  Isolated nodes NONE
+
+###
+LLM:
+
+  Soundness                            True
+  Fitness (alignment, log)             0.9347
+  Precision (alignment / ETC)          0.3906
+  F1 Score                             0.5509
+  Generalization                       0.9342
+  Simplicity                           0.6000
+  

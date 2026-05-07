@@ -1,0 +1,98 @@
+# Variant 2: refine Model 3 further by decoupling clinical work from ER Sepsis Triage
+# - ER Registration -> ER Triage remains the stable entry
+# - ER Sepsis Triage is still modeled, but it may occur in parallel with the broader clinical region
+# - labs, treatments, and admissions are all independent optional/unordered parts
+
+from utils.model_generation import ModelGenerator
+
+gen = ModelGenerator()
+
+er_registration = gen.activity("ER Registration")
+er_triage = gen.activity("ER Triage")
+er_sepsis_triage = gen.activity("ER Sepsis Triage")
+
+crp = gen.activity("CRP")
+leucocytes = gen.activity("Leucocytes")
+lactic_acid = gen.activity("LacticAcid")
+
+iv_liquid = gen.activity("IV Liquid")
+iv_antibiotics = gen.activity("IV Antibiotics")
+
+admission_nc = gen.activity("Admission NC")
+admission_ic = gen.activity("Admission IC")
+
+release_a = gen.activity("Release A")
+release_b = gen.activity("Release B")
+release_c = gen.activity("Release C")
+release_d = gen.activity("Release D")
+release_e = gen.activity("Release E")
+return_er = gen.activity("Return ER")
+
+lab_round = gen.partial_order(
+    submodels=[
+        crp,
+        leucocytes,
+        gen.xor(lactic_acid, gen.skip())
+    ],
+    dependencies=[]
+)
+
+lab_loop = gen.loop(
+    do=lab_round,
+    redo=lab_round.copy()
+)
+
+clinical_block = gen.partial_order(
+    submodels=[
+        lab_loop,
+        gen.xor(iv_liquid, gen.skip()),
+        gen.xor(iv_antibiotics, gen.skip()),
+        gen.xor(admission_nc, gen.skip()),
+        gen.xor(admission_ic, gen.skip())
+    ],
+    dependencies=[]
+)
+
+post_triage_region = gen.partial_order(
+    submodels=[
+        er_sepsis_triage,
+        clinical_block
+    ],
+    dependencies=[]
+)
+
+release_a_path = gen.partial_order(
+    submodels=[
+        release_a,
+        gen.xor(return_er, gen.skip())
+    ],
+    dependencies=[(0, 1)]
+)
+
+release_block = gen.xor(
+    release_a_path,
+    release_b,
+    release_c,
+    release_d,
+    release_e,
+    gen.skip()
+)
+
+final_model_variant_2 = gen.partial_order(
+    submodels=[
+        er_registration,
+        er_triage,
+        post_triage_region,
+        release_block
+    ],
+    dependencies=[
+        (0, 1),
+        (1, 2),
+        (2, 3)
+    ]
+)
+
+###OPTIONAL FIX 
+Relax the lab loop so CRP and Leucocytes do not have to co-occur in every iteration.
+If another iteration is allowed, test whether ER Triage should also be partially loosened relative to some early labs.
+Keep the current overall structure; it is already the strongest base model.

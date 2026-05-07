@@ -1,0 +1,33 @@
+from utils.model_generation import ModelGenerator
+
+gen = ModelGenerator()
+
+# Atomic activities
+fc = gen.activity("First consult")
+bt = gen.activity("Blood test")
+pt = gen.activity("Physical test")
+xr = gen.activity("X-ray scan")
+sc = gen.activity("Second consult")
+med = gen.activity("Medicine")
+sur = gen.activity("Surgery")
+fin = gen.activity("Final consult")
+
+# Tests: Blood test and Physical test always happen, X-ray is optional, all unordered
+tests = gen.partial_order(
+    submodels=[bt, pt, gen.xor(xr, gen.skip())],
+    dependencies=[]
+)
+
+# Treatment choice: either Medicine or Surgery
+treatment = gen.xor(med, sur)
+
+# Final model: sequential flow
+final_model = gen.partial_order(
+    submodels=[fc, tests, sc, treatment, fin],
+    dependencies=[
+        (0, 1),  # First consult -> tests
+        (1, 2),  # tests -> Second consult
+        (2, 3),  # Second consult -> treatment
+        (3, 4)   # treatment -> Final consult
+    ]
+)

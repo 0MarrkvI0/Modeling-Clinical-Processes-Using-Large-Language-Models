@@ -1,0 +1,6 @@
+Create complete flat BPMN model executable in CAMUNDA MODELER 8 and use DI, generate it from provided POWL model in python, strictly don't miss anything and provide all arrows.
+
+PROVIDED POWL MODEL:
+"""
+{{ POWL MODEL }}
+"""

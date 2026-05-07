@@ -1,0 +1,171 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" id="Definitions_1" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="5.40.1">
+  <bpmn:process id="Process_1" isExecutable="true">
+    <bpmn:startEvent id="StartEvent_1" name="Start" />
+    <bpmn:endEvent id="EndEvent_1" name="End" />
+    <bpmn:task id="Task_FirstConsult" name="First consult" />
+    <bpmn:task id="Task_PhysicalTest" name="Physical test" />
+    <bpmn:task id="Task_BloodTest" name="Blood test" />
+    <bpmn:task id="Task_Xray" name="X-ray scan" />
+    <bpmn:task id="Task_SecondConsult" name="Second consult" />
+    <bpmn:task id="Task_Surgery" name="Surgery" />
+    <bpmn:task id="Task_Medicine" name="Medicine" />
+    <bpmn:task id="Task_FinalConsult" name="Final consult" />
+    <bpmn:parallelGateway id="Gateway_SplitTests" />
+    <bpmn:parallelGateway id="Gateway_JoinTests" />
+    <bpmn:exclusiveGateway id="Gateway_DecideXray" />
+    <bpmn:exclusiveGateway id="Gateway_JoinXray" />
+    <bpmn:exclusiveGateway id="Gateway_SplitTreatment" />
+    <bpmn:exclusiveGateway id="Gateway_JoinTreatment" />
+    <bpmn:sequenceFlow id="f1" sourceRef="StartEvent_1" targetRef="Task_FirstConsult" />
+    <bpmn:sequenceFlow id="f2" sourceRef="Task_FirstConsult" targetRef="Gateway_SplitTests" />
+    <bpmn:sequenceFlow id="f3" sourceRef="Gateway_SplitTests" targetRef="Task_PhysicalTest" />
+    <bpmn:sequenceFlow id="f4" sourceRef="Gateway_SplitTests" targetRef="Task_BloodTest" />
+    <bpmn:sequenceFlow id="f5" sourceRef="Task_PhysicalTest" targetRef="Gateway_JoinTests" />
+    <bpmn:sequenceFlow id="f6" sourceRef="Task_BloodTest" targetRef="Gateway_JoinTests" />
+    <bpmn:sequenceFlow id="f7" sourceRef="Gateway_JoinTests" targetRef="Gateway_DecideXray" />
+    <bpmn:sequenceFlow id="f8" sourceRef="Gateway_DecideXray" targetRef="Task_Xray" />
+    <bpmn:sequenceFlow id="f9" sourceRef="Gateway_DecideXray" targetRef="Gateway_JoinXray" />
+    <bpmn:sequenceFlow id="f10" sourceRef="Task_Xray" targetRef="Gateway_JoinXray" />
+    <bpmn:sequenceFlow id="f11" sourceRef="Gateway_JoinXray" targetRef="Task_SecondConsult" />
+    <bpmn:sequenceFlow id="f12" sourceRef="Task_SecondConsult" targetRef="Gateway_SplitTreatment" />
+    <bpmn:sequenceFlow id="f13" sourceRef="Gateway_SplitTreatment" targetRef="Task_Surgery" />
+    <bpmn:sequenceFlow id="f14" sourceRef="Gateway_SplitTreatment" targetRef="Task_Medicine" />
+    <bpmn:sequenceFlow id="f15" sourceRef="Task_Surgery" targetRef="Gateway_JoinTreatment" />
+    <bpmn:sequenceFlow id="f16" sourceRef="Task_Medicine" targetRef="Gateway_JoinTreatment" />
+    <bpmn:sequenceFlow id="f17" sourceRef="Gateway_JoinTreatment" targetRef="Task_FinalConsult" />
+    <bpmn:sequenceFlow id="f18" sourceRef="Task_FinalConsult" targetRef="EndEvent_1" />
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="Diagram_1">
+    <bpmndi:BPMNPlane id="Plane_1" bpmnElement="Process_1">
+      <bpmndi:BPMNShape bpmnElement="StartEvent_1">
+        <dc:Bounds x="160" y="150" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="166" y="186" width="24" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="EndEvent_1">
+        <dc:Bounds x="1530" y="150" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1538" y="186" width="20" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="Task_FirstConsult">
+        <dc:Bounds x="230" y="140" width="100" height="60" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="Task_PhysicalTest">
+        <dc:Bounds x="440" y="80" width="110" height="60" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="Task_BloodTest">
+        <dc:Bounds x="440" y="220" width="110" height="60" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="Task_Xray">
+        <dc:Bounds x="740" y="150" width="100" height="60" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="Task_SecondConsult">
+        <dc:Bounds x="950" y="140" width="110" height="60" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="Task_Surgery">
+        <dc:Bounds x="1170" y="80" width="100" height="60" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="Task_Medicine">
+        <dc:Bounds x="1170" y="220" width="100" height="60" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="Task_FinalConsult">
+        <dc:Bounds x="1390" y="140" width="110" height="60" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="Gateway_SplitTests" isMarkerVisible="true">
+        <dc:Bounds x="360" y="150" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="Gateway_JoinTests">
+        <dc:Bounds x="580" y="150" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="Gateway_DecideXray" isMarkerVisible="true">
+        <dc:Bounds x="660" y="150" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="Gateway_JoinXray" isMarkerVisible="true">
+        <dc:Bounds x="870" y="150" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="Gateway_SplitTreatment">
+        <dc:Bounds x="1090" y="150" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="Gateway_JoinTreatment">
+        <dc:Bounds x="1310" y="150" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge bpmnElement="f1">
+        <di:waypoint x="196" y="168" />
+        <di:waypoint x="230" y="168" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="f2">
+        <di:waypoint x="330" y="168" />
+        <di:waypoint x="360" y="175" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="f3">
+        <di:waypoint x="410" y="175" />
+        <di:waypoint x="440" y="110" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="f4">
+        <di:waypoint x="410" y="175" />
+        <di:waypoint x="440" y="250" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="f5">
+        <di:waypoint x="550" y="110" />
+        <di:waypoint x="580" y="175" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="f6">
+        <di:waypoint x="550" y="250" />
+        <di:waypoint x="580" y="175" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="f7">
+        <di:waypoint x="630" y="175" />
+        <di:waypoint x="660" y="175" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="f8">
+        <di:waypoint x="710" y="175" />
+        <di:waypoint x="740" y="175" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="f9">
+        <di:waypoint x="685" y="150" />
+        <di:waypoint x="685" y="120" />
+        <di:waypoint x="895" y="120" />
+        <di:waypoint x="895" y="150" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="f10">
+        <di:waypoint x="840" y="175" />
+        <di:waypoint x="870" y="175" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="f11">
+        <di:waypoint x="920" y="175" />
+        <di:waypoint x="950" y="170" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="f12">
+        <di:waypoint x="1060" y="170" />
+        <di:waypoint x="1090" y="175" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="f13">
+        <di:waypoint x="1140" y="175" />
+        <di:waypoint x="1170" y="110" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="f14">
+        <di:waypoint x="1140" y="175" />
+        <di:waypoint x="1170" y="250" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="f15">
+        <di:waypoint x="1270" y="110" />
+        <di:waypoint x="1310" y="175" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="f16">
+        <di:waypoint x="1270" y="250" />
+        <di:waypoint x="1310" y="175" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="f17">
+        <di:waypoint x="1360" y="175" />
+        <di:waypoint x="1390" y="170" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="f18">
+        <di:waypoint x="1500" y="170" />
+        <di:waypoint x="1530" y="168" />
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>
