@@ -42,9 +42,9 @@ HEURISTIC:
 INDUCTIVE:
 
   Soundness                            True
-  Fitness (alignment, log)             0.8649 N/A
-  Precision (alignment / ETC)          0.5571 N/A
-  F1 Score                             0.6777 N/A
+  Fitness (alignment, log)             0.8649
+  Precision (alignment / ETC)          0.5571
+  F1 Score                             0.6777
   Generalization                       0.8830
   Simplicity                           0.6500
 
