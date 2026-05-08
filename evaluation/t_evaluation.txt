@@ -22,9 +22,9 @@ ALPHA:
 HEURISTIC:
 
   Soundness                            False
-  Fitness (alignment, log)             1.0000 N/A
-  Precision (alignment / ETC)          0.9670 N/A
-  F1 Score                             0.9832 N/A
+  Fitness (alignment, log)             N/A
+  Precision (alignment / ETC)          N/A
+  F1 Score                             N/A
   Generalization                       0.7948
   Simplicity                           0.6667
   
@@ -33,7 +33,7 @@ HEURISTIC:
   Structural similarity (avg metric)         0.6185  medium (0.4–0.7)
   Structural similarity (GED)                0.8884  high  (>0.7)
   Behavioral similarity (Jaccard DFG)        0.9091  high  (>0.7)
-  Behavioral similarity (Trace Sampling)      0.5714  medium (0.4–0.7)
+  Behavioral similarity (Trace Sampling)      0.0000  medium (0.4–0.7)
   Combined score                             0.8441  high  (>0.7)
   
   Isolated Nodes (None)
@@ -49,7 +49,7 @@ INDUCTIVE:
   Simplicity                           0.8000
   
   ### COMPARISON WITH LLM
-  Semantic similarity  (Jaccard acts)        0.7778  high  (>0.7)
+  Semantic similarity  (Jaccard acts)        1.000  high  (>0.7)
   Structural similarity (avg metric)         0.6675  medium (0.4–0.7)
   Structural similarity (GED)                0.9093  high  (>0.7)
   Behavioral similarity (Jaccard DFG)        0.3125  low  (<0.4)

@@ -1,17 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<bpmn:definitions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" id="Definitions_PatientTreatment" targetNamespace="http://bpmn.io/schema/bpmn">
-  <bpmn:process id="Process_PatientTreatment_POWL" name="Patient Treatment POWL" isExecutable="true">
+<bpmn:definitions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" id="Definitions_PatientTreatment" targetNamespace="http://bpmn.io/schema/bpmn">
+  <bpmn:process id="Process_PatientTreatment_POWL" name="Patient Treatment POWL" isExecutable="true" camunda:historyTimeToLive="180">
     <bpmn:startEvent id="StartEvent_1" name="Start" />
     <bpmn:task id="Task_FirstConsult" name="First consult" />
     <bpmn:parallelGateway id="Gateway_TestsSplit" />
     <bpmn:task id="Task_PhysicalTest" name="Physical test" />
     <bpmn:task id="Task_BloodTest" name="Blood test" />
-    <bpmn:exclusiveGateway id="Gateway_XraySplit" />
+    <bpmn:exclusiveGateway id="Gateway_XraySplit" default="Flow_07" />
     <bpmn:task id="Task_XrayScan" name="X-ray scan" />
     <bpmn:exclusiveGateway id="Gateway_XrayJoin" />
     <bpmn:parallelGateway id="Gateway_TestsJoin" />
     <bpmn:task id="Task_SecondConsult" name="Second consult" />
-    <bpmn:exclusiveGateway id="Gateway_TreatmentSplit" />
+    <bpmn:exclusiveGateway id="Gateway_TreatmentSplit" default="Flow_15" />
     <bpmn:task id="Task_Surgery" name="Surgery" />
     <bpmn:task id="Task_Medicine" name="Medicine" />
     <bpmn:exclusiveGateway id="Gateway_TreatmentJoin" />
@@ -22,7 +22,9 @@
     <bpmn:sequenceFlow id="Flow_03" sourceRef="Gateway_TestsSplit" targetRef="Task_PhysicalTest" />
     <bpmn:sequenceFlow id="Flow_04" sourceRef="Gateway_TestsSplit" targetRef="Task_BloodTest" />
     <bpmn:sequenceFlow id="Flow_05" sourceRef="Gateway_TestsSplit" targetRef="Gateway_XraySplit" />
-    <bpmn:sequenceFlow id="Flow_06" sourceRef="Gateway_XraySplit" targetRef="Task_XrayScan" />
+    <bpmn:sequenceFlow id="Flow_06" sourceRef="Gateway_XraySplit" targetRef="Task_XrayScan">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${execution.hasVariable("needsXray") and needsXray == true}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_07" sourceRef="Gateway_XraySplit" targetRef="Gateway_XrayJoin" />
     <bpmn:sequenceFlow id="Flow_08" sourceRef="Task_XrayScan" targetRef="Gateway_XrayJoin" />
     <bpmn:sequenceFlow id="Flow_09" sourceRef="Task_PhysicalTest" targetRef="Gateway_TestsJoin" />
@@ -30,7 +32,9 @@
     <bpmn:sequenceFlow id="Flow_11" sourceRef="Gateway_XrayJoin" targetRef="Gateway_TestsJoin" />
     <bpmn:sequenceFlow id="Flow_12" sourceRef="Gateway_TestsJoin" targetRef="Task_SecondConsult" />
     <bpmn:sequenceFlow id="Flow_13" sourceRef="Task_SecondConsult" targetRef="Gateway_TreatmentSplit" />
-    <bpmn:sequenceFlow id="Flow_14" sourceRef="Gateway_TreatmentSplit" targetRef="Task_Surgery" />
+    <bpmn:sequenceFlow id="Flow_14" sourceRef="Gateway_TreatmentSplit" targetRef="Task_Surgery">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${execution.hasVariable("treatment") and treatment == "surgery"}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_15" sourceRef="Gateway_TreatmentSplit" targetRef="Task_Medicine" />
     <bpmn:sequenceFlow id="Flow_16" sourceRef="Task_Surgery" targetRef="Gateway_TreatmentJoin" />
     <bpmn:sequenceFlow id="Flow_17" sourceRef="Task_Medicine" targetRef="Gateway_TreatmentJoin" />

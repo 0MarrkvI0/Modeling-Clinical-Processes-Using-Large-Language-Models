@@ -22,9 +22,9 @@ ALPHA:
 HEURISTIC:
 
   Soundness                            False
-  Fitness (alignment, log)             0.5325 N/A
-  Precision (alignment / ETC)          0.7796 N/A
-  F1 Score                             0.6328 N/A
+  Fitness (alignment, log)             N/A
+  Precision (alignment / ETC)          N/A
+  F1 Score                             N/A
   Generalization                       0.7147
   Simplicity                           0.6222
 
