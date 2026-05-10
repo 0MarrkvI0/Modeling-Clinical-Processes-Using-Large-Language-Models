@@ -1,1 +1,1 @@
-BP
+![Workflow diagram](prompt_pipeline/workflow_diagram.png)
